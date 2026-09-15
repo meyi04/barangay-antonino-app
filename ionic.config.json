@@ -1,0 +1,7 @@
+{
+  "name": "barangay-antonino-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
