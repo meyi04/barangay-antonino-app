@@ -1,4 +1,4 @@
-﻿import React, { useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { IonButton, IonIcon, IonToast } from '@ionic/react';
 import { logOutOutline } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
@@ -28,7 +28,7 @@ const ResidentLogout: React.FC = () => {
     <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
       <IonButton aria-label="Log out" fill="clear" color="light" size="small" disabled={busy} onClick={() => void logout()}
         style={{ background: 'rgba(255,255,255,0.18)', borderRadius: '20px', fontSize: '12px', fontWeight: 600, textTransform: 'none', margin: 0 }}>
-        <IonIcon icon={logOutOutline} slot="start" />{busy ? 'Logging out...' : 'Logout'}
+        <IonIcon icon={logOutOutline} slot="icon-only" />
       </IonButton>
       <IonToast isOpen={error} onDidDismiss={() => setError(false)} message="Unable to log out. Please try again." color="danger" duration={3000} position="top" />
     </div>

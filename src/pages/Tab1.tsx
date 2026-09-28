@@ -18,6 +18,7 @@ import { db } from "../firebase/config";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import BarangayLogo from "../components/BarangayLogo";
+import './Services.css';
 
 type Announcement = {
   id: string;
@@ -98,15 +99,10 @@ const Tab1: React.FC = () => {
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
-        <IonToolbar style={{ background: "linear-gradient(135deg, #0d6840 0%, #0f325e 100%)" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <BarangayLogo size={36} />
-              <div>
-                <div style={{ fontSize: "10px", fontWeight: 600, letterSpacing: "0.8px", textTransform: "uppercase", color: "rgba(255,255,255,0.85)" }}>Republika ng Pilipinas</div>
-                <div style={{ fontSize: "16px", fontWeight: 800, color: "#fff", letterSpacing: "-0.2px" }}>Barangay Antonino</div>
-              </div>
-            </div>
+        <IonToolbar className="services-toolbar">
+          <div className="services-brand">
+            <BarangayLogo size={36} />
+            <div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div>
             <ResidentLogout />
           </div>
         </IonToolbar>
