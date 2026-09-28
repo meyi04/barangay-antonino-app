@@ -1,3 +1,4 @@
+import ResidentLogout from '../components/ResidentLogout';
 import React, { useEffect, useRef, useState } from "react";
 import { IonButton, IonContent, IonHeader, IonInput, IonItem, IonList, IonPage, IonSelect, IonSelectOption, IonTextarea, IonIcon, IonToolbar } from "@ionic/react";
 import { collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
@@ -89,6 +90,7 @@ const Services: React.FC = () => {
           <div className="services-brand">
             <BarangayLogo size={36} />
             <div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div>
+            <ResidentLogout />
           </div>
         </IonToolbar>
       </IonHeader>

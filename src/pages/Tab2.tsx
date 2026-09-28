@@ -1,3 +1,4 @@
+import ResidentLogout from '../components/ResidentLogout';
 import React, { useEffect, useMemo, useState } from "react";
 import {
   IonAlert,
@@ -218,6 +219,7 @@ const Tab2: React.FC = () => {
           <div className="requests-brand">
             <BarangayLogo size={36} />
             <div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div>
+            <ResidentLogout />
           </div>
         </IonToolbar>
       </IonHeader>

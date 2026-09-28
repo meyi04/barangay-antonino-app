@@ -1,3 +1,4 @@
+import ResidentLogout from '../components/ResidentLogout';
 // src/pages/Tab1.tsx - Barangay Antonino Citizen Portal Home
 import React, { useEffect, useState } from "react";
 import {
@@ -106,11 +107,7 @@ const Tab1: React.FC = () => {
                 <div style={{ fontSize: "16px", fontWeight: 800, color: "#fff", letterSpacing: "-0.2px" }}>Barangay Antonino</div>
               </div>
             </div>
-            <IonButton fill="clear" color="light" size="small" onClick={() => setShowHotlines(true)}
-              style={{ background: "rgba(255,255,255,0.18)", borderRadius: "20px", fontWeight: 600, fontSize: "12px", height: "32px", textTransform: "none" }}>
-              <IonIcon icon={callOutline} slot="start" style={{ marginRight: "4px" }} />
-              Hotlines
-            </IonButton>
+            <ResidentLogout />
           </div>
         </IonToolbar>
       </IonHeader>
