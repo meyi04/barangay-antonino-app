@@ -1,4 +1,6 @@
 // src/models/serviceRequest.ts
+import type { FieldValue, Timestamp } from 'firebase/firestore';
+
 export interface ServiceRequest {
   id?: string;              // Firestore doc ID (auto)
   ticketNo?: string;        // BRGY-2025-0001
@@ -12,5 +14,5 @@ export interface ServiceRequest {
   submittedByName: string;  // Resident full name
   submittedByUid?: string;  // Firebase Auth UID of the submitting resident
   contactNumber: string;    // 09xxxxxxxxx
-  createdAt?: any;          // Firestore timestamp
+  createdAt?: Timestamp | FieldValue | null; // Firestore timestamp
 }

@@ -4,9 +4,16 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  User,
+  type User,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp,
+  type FieldValue,
+  type Timestamp,
+} from "firebase/firestore";
 import { auth, db } from "../firebase/config";
 
 export interface UserProfile {
@@ -16,7 +23,7 @@ export interface UserProfile {
   role: "resident" | "admin";
   purok?: string;
   contactNumber?: string;
-  createdAt?: any;
+  createdAt?: Timestamp | FieldValue | null;
 }
 
 // 🔐 Register
@@ -24,7 +31,6 @@ export const registerUser = async (
   email: string,
   password: string,
   fullName: string,
-  role: "resident" | "admin",
   purok: string,
   contactNumber: string
 ): Promise<UserProfile> => {
@@ -33,7 +39,7 @@ export const registerUser = async (
     uid: cred.user.uid,
     email,
     fullName,
-    role,
+    role: 'resident',
     purok,
     contactNumber,
     createdAt: serverTimestamp(),

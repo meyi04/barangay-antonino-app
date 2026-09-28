@@ -1,128 +1,47 @@
-// src/pages/staff/StaffDashboard.tsx
-import React, { useEffect, useState } from "react";
-import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonCard,
-  IonCardContent,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonText,
-  IonIcon,
-} from "@ionic/react";
-import {
-  timeOutline,
-  constructOutline,
-  checkmarkDoneOutline,
-  documentTextOutline,
-} from "ionicons/icons";
-import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebase/config";
+﻿import React, { useEffect, useState } from 'react';
+import { IonContent, IonHeader, IonIcon, IonPage, IonSpinner, IonToolbar } from '@ionic/react';
+import { checkmarkDoneOutline, constructOutline, documentTextOutline, timeOutline, shieldCheckmark, newspaperOutline } from 'ionicons/icons';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
+import { db } from '../../firebase/config';
+import { useAuth } from '../../context/AuthContext';
+import BarangayLogo from '../../components/BarangayLogo';
+import '../Services.css';
+import './Staff.css';
 
 const StaffDashboard: React.FC = () => {
-  const [stats, setStats] = useState({
-    total: 0,
-    pending: 0,
-    inProgress: 0,
-    resolved: 0,
-  });
-
-  useEffect(() => {
-    const unsub = onSnapshot(collection(db, "requests"), (snap) => {
-      const data = snap.docs.map((d) => d.data());
-      setStats({
-        total: data.length,
-        pending: data.filter((r) => r.status === "Pending").length,
-        inProgress: data.filter((r) => r.status === "In Progress").length,
-        resolved: data.filter((r) => r.status === "Resolved").length,
-      });
-    });
-    return () => unsub();
-  }, []);
-
+  const { profile } = useAuth();
+  const navigate = useNavigate();
+  const [stats, setStats] = useState({ total: 0, pending: 0, inProgress: 0, resolved: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  useEffect(() => onSnapshot(collection(db, 'requests'), (snap) => {
+    const data = snap.docs.map((item) => item.data());
+    setStats({ total: data.length, pending: data.filter((item) => item.status === 'Pending').length, inProgress: data.filter((item) => item.status === 'In Progress').length, resolved: data.filter((item) => item.status === 'Resolved').length });
+    setLoading(false); setError('');
+  }, () => { setLoading(false); setError('Unable to load requests. Check your connection and staff permissions.'); }), []);
+  const cards = [
+    { label: 'Total Requests', value: stats.total, color: '#0d6840', bg: '#ecfdf5', icon: documentTextOutline },
+    { label: 'Pending', value: stats.pending, color: '#b45309', bg: '#fef3c7', icon: timeOutline },
+    { label: 'In Progress', value: stats.inProgress, color: '#2563eb', bg: '#dbeafe', icon: constructOutline },
+    { label: 'Resolved', value: stats.resolved, color: '#166534', bg: '#dcfce7', icon: checkmarkDoneOutline },
+  ];
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar color="success">
-          <IonTitle>Staff Dashboard</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-
-      <IonContent className="ion-padding">
-        <IonText>
-          <h2>Overview</h2>
-        </IonText>
-
-        <IonCard color="success">
-          <IonCardContent style={{ textAlign: "center" }}>
-            <IonIcon
-              icon={documentTextOutline}
-              style={{ fontSize: "40px", color: "white" }}
-            />
-            <h1 style={{ fontSize: "48px", margin: "6px 0", color: "white" }}>
-              {stats.total}
-            </h1>
-            <IonText color="light">
-              <p style={{ margin: 0 }}>Total Requests</p>
-            </IonText>
-          </IonCardContent>
-        </IonCard>
-
-        <IonGrid>
-          <IonRow>
-            <IonCol>
-              <IonCard color="warning">
-                <IonCardContent style={{ textAlign: "center" }}>
-                  <IonIcon icon={timeOutline} style={{ fontSize: "28px" }} />
-                  <h2 style={{ margin: "6px 0" }}>{stats.pending}</h2>
-                  <IonText color="dark">
-                    <p style={{ fontSize: "12px", margin: 0 }}>Pending</p>
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-            <IonCol>
-              <IonCard color="tertiary">
-                <IonCardContent style={{ textAlign: "center" }}>
-                  <IonIcon icon={constructOutline} style={{ fontSize: "28px" }} />
-                  <h2 style={{ margin: "6px 0" }}>{stats.inProgress}</h2>
-                  <IonText color="dark">
-                    <p style={{ fontSize: "12px", margin: 0 }}>In Progress</p>
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-          </IonRow>
-          <IonRow>
-            <IonCol>
-              <IonCard color="success">
-                <IonCardContent style={{ textAlign: "center" }}>
-                  <IonIcon
-                    icon={checkmarkDoneOutline}
-                    style={{ fontSize: "28px" }}
-                  />
-                  <h2 style={{ margin: "6px 0" }}>{stats.resolved}</h2>
-                  <IonText color="dark">
-                    <p style={{ fontSize: "12px", margin: 0 }}>Resolved</p>
-                  </IonText>
-                </IonCardContent>
-              </IonCard>
-            </IonCol>
-          </IonRow>
-        </IonGrid>
-
-        <IonText color="medium">
-          <p style={{ textAlign: "center", marginTop: "20px" }}>
-            Real-time stats update as residents submit requests.
-          </p>
-        </IonText>
-      </IonContent>
+    <IonPage className="services-page staff-page">
+      <IonHeader className="ion-no-border"><IonToolbar className="services-toolbar"><div className="services-brand"><BarangayLogo size={36} /><div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div></div></IonToolbar></IonHeader>
+      <IonContent className="ion-padding services-content"><div className="services-shell">
+        <p className="services-eyebrow">Staff Portal • Dashboard</p>
+        <div className="services-hero"><span className="services-pill"><IonIcon icon={shieldCheckmark} /> Barangay Staff</span><h1>Mabuhay, {profile?.fullName || 'Staff'}!</h1><p>Review resident requests, respond to community concerns, and keep the barangay informed.</p></div>
+        <h2 className="services-section-title">Request Overview</h2><p className="services-hint">Live updates from all resident submissions.</p>
+        {loading ? <div role="status"><IonSpinner /><p>Loading request summary...</p></div> : error ? <p role="alert" className="services-error">{error}</p> : <div className="staff-stats">{cards.map((card) => <div className="staff-stat" key={card.label}><span className="staff-stat-icon" style={{ background: card.bg, color: card.color }}><IonIcon icon={card.icon} /></span><strong>{card.value}</strong><span>{card.label}</span></div>)}</div>}
+        <h2 className="services-section-title">Staff Workspace</h2><p className="services-hint">Choose an area to manage.</p>
+        <div className="services-choices">
+          <button className="services-choice" type="button" onClick={() => navigate('/staff/requests')}><span className="services-choice-icon"><IonIcon icon={documentTextOutline} /></span><strong>Manage Requests</strong><small>Review certificates and complaints. Update their progress.</small></button>
+          <button className="services-choice" type="button" onClick={() => navigate('/staff/transparency')}><span className="services-choice-icon complaint"><IonIcon icon={newspaperOutline} /></span><strong>Transparency Board</strong><small>Publish budgets, project updates, reports, and attachments.</small></button>
+        </div>
+        <div className="staff-note"><IonIcon icon={shieldCheckmark} /><p>Request status updates and published board posts are visible to residents.</p></div>
+      </div></IonContent>
     </IonPage>
   );
 };
-
 export default StaffDashboard;

@@ -1,236 +1,154 @@
 import React from "react";
 import {
+  IonCard,
+  IonCardContent,
+  IonChip,
   IonContent,
   IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
-  IonCardContent,
-  IonList,
+  IonIcon,
   IonItem,
   IonLabel,
-  IonIcon,
-  IonText,
-  IonChip,
+  IonList,
   IonNote,
+  IonPage,
+  IonToolbar,
 } from "@ionic/react";
 import {
-  informationCircleOutline,
-  businessOutline,
-  codeSlashOutline,
-  layersOutline,
-  peopleOutline,
   callOutline,
+  codeSlashOutline,
+  informationCircleOutline,
+  layersOutline,
   locationOutline,
   mailOutline,
+  peopleOutline,
 } from "ionicons/icons";
 
 const Tab3: React.FC = () => {
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar color="primary">
-          <IonTitle>About</IonTitle>
+      <IonHeader className="ion-no-border">
+        <IonToolbar style={{ background: "linear-gradient(135deg, #0d6840 0%, #0f325e 100%)" }}>
+          <div style={{ padding: "12px 16px", color: "#fff" }}>
+            <div style={{ fontSize: "10px", letterSpacing: "0.8px", textTransform: "uppercase", opacity: 0.8 }}>About</div>
+            <div style={{ fontSize: "18px", fontWeight: 800 }}>Barangay Antonino</div>
+          </div>
         </IonToolbar>
       </IonHeader>
 
       <IonContent className="ion-padding">
-        {/* App Info Card */}
-        <IonCard>
-          <IonCardHeader>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <IonIcon
-                icon={businessOutline}
-                style={{ fontSize: "32px", color: "var(--ion-color-primary)" }}
-              />
+        <IonCard style={{ borderRadius: "18px", border: "1px solid #e2e8f0", boxShadow: "0 4px 18px rgba(0,0,0,0.04)" }}>
+          <IonCardContent>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <IonIcon icon={informationCircleOutline} style={{ fontSize: "24px", color: "#0d6840" }} />
+              </div>
               <div>
-                <IonCardTitle>eBarangay Antonino</IonCardTitle>
-                <IonCardSubtitle>Version 1.0.0</IonCardSubtitle>
+                <div style={{ fontSize: "12px", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.7px" }}>System</div>
+                <div style={{ fontSize: "18px", fontWeight: 800, color: "#0f172a" }}>eBarangay Antonino</div>
               </div>
             </div>
-          </IonCardHeader>
-          <IonCardContent>
-            A mobile-based service request and complaint tracking system for
-            Barangay Antonino. Residents can submit requests, track their status
-            in real-time, and communicate with barangay staff.
+
+            <p style={{ margin: "0", color: "#475569", lineHeight: 1.6 }}>
+              A digital service request platform for faster barangay communication, transparent request tracking, and community support.
+            </p>
           </IonCardContent>
         </IonCard>
 
-        {/* About the System */}
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>
-              <IonIcon icon={informationCircleOutline} /> About the System
-            </IonCardTitle>
-          </IonCardHeader>
+        <IonCard style={{ borderRadius: "18px", border: "1px solid #e2e8f0", boxShadow: "0 4px 18px rgba(0,0,0,0.04)", marginTop: "16px" }}>
           <IonCardContent>
-            <IonText>
-              <p>
-                <strong>eBarangay Antonino</strong> is a final project developed
-                for the subject <em>ITE 413 – Integrative Programming and
-                Technologies 2</em>. It aims to digitize the process of filing
-                complaints and service requests in the barangay, making it
-                faster, more transparent, and easier to monitor.
-              </p>
-            </IonText>
-
-            <IonText color="medium">
-              <p style={{ fontSize: "14px" }}>
-                <strong>Key Features:</strong>
-              </p>
-            </IonText>
-
-            <IonList lines="none">
-              <IonItem>
+            <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f2942", marginBottom: "10px" }}>Key Features</div>
+            <IonList lines="none" style={{ background: "transparent", padding: 0 }}>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
                 <IonLabel>
                   <h3>📝 Submit Requests</h3>
-                  <p>File complaints and service requests with photos and location</p>
+                  <p>File complaints and service requests for barangay assistance.</p>
                 </IonLabel>
               </IonItem>
-              <IonItem>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
                 <IonLabel>
                   <h3>📊 Track Status</h3>
-                  <p>Monitor real-time updates from Pending to Resolved</p>
+                  <p>Monitor updates from pending to resolved in real time.</p>
                 </IonLabel>
               </IonItem>
-              <IonItem>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
                 <IonLabel>
-                  <h3>🔔 Get Notified</h3>
-                  <p>Receive instant notifications on status changes</p>
-                </IonLabel>
-              </IonItem>
-              <IonItem>
-                <IonLabel>
-                  <h3>💬 Live Chat</h3>
-                  <p>Communicate directly with barangay staff</p>
+                  <h3>🔔 Community Updates</h3>
+                  <p>Stay informed through official announcements and advisories.</p>
                 </IonLabel>
               </IonItem>
             </IonList>
           </IonCardContent>
         </IonCard>
 
-        {/* Tech Stack */}
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>
-              <IonIcon icon={codeSlashOutline} /> Technology Stack
-            </IonCardTitle>
-          </IonCardHeader>
+        <IonCard style={{ borderRadius: "18px", border: "1px solid #e2e8f0", boxShadow: "0 4px 18px rgba(0,0,0,0.04)", marginTop: "16px" }}>
           <IonCardContent>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+              <IonIcon icon={codeSlashOutline} style={{ color: "#2563eb", fontSize: "18px" }} />
+              <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f2942" }}>Technology Stack</div>
+            </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-              <IonChip color="primary">
-                <IonLabel>Ionic React</IonLabel>
-              </IonChip>
-              <IonChip color="warning">
-                <IonLabel>Firebase</IonLabel>
-              </IonChip>
-              <IonChip color="success">
-                <IonLabel>Firestore</IonLabel>
-              </IonChip>
-              <IonChip color="tertiary">
-                <IonLabel>TypeScript</IonLabel>
-              </IonChip>
-              <IonChip color="secondary">
-                <IonLabel>Vite</IonLabel>
-              </IonChip>
+              <IonChip color="primary"><IonLabel>Ionic React</IonLabel></IonChip>
+              <IonChip color="warning"><IonLabel>Firebase</IonLabel></IonChip>
+              <IonChip color="success"><IonLabel>Firestore</IonLabel></IonChip>
+              <IonChip color="tertiary"><IonLabel>TypeScript</IonLabel></IonChip>
             </div>
 
-            <IonList lines="none" style={{ marginTop: "8px" }}>
-              <IonItem>
+            <IonList lines="none" style={{ background: "transparent", padding: 0, marginTop: "8px" }}>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
                 <IonIcon icon={layersOutline} slot="start" color="primary" />
-                <IonLabel>
-                  <h3>Frontend</h3>
-                  <p>Ionic React + TypeScript</p>
-                </IonLabel>
+                <IonLabel><h3>Frontend</h3><p>Ionic React + TypeScript</p></IonLabel>
               </IonItem>
-              <IonItem>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
                 <IonIcon icon={layersOutline} slot="start" color="warning" />
-                <IonLabel>
-                  <h3>Backend / Database</h3>
-                  <p>Firebase Firestore (NoSQL)</p>
-                </IonLabel>
-              </IonItem>
-              <IonItem>
-                <IonIcon icon={layersOutline} slot="start" color="success" />
-                <IonLabel>
-                  <h3>Real-time Sync</h3>
-                  <p>Firestore onSnapshot listeners</p>
-                </IonLabel>
+                <IonLabel><h3>Backend</h3><p>Firebase Firestore</p></IonLabel>
               </IonItem>
             </IonList>
           </IonCardContent>
         </IonCard>
 
-        {/* Developer */}
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>
-              <IonIcon icon={peopleOutline} /> Developer
-            </IonCardTitle>
-          </IonCardHeader>
+        <IonCard style={{ borderRadius: "18px", border: "1px solid #e2e8f0", boxShadow: "0 4px 18px rgba(0,0,0,0.04)", marginTop: "16px" }}>
           <IonCardContent>
-            <IonList lines="none">
-              <IonItem>
-                <IonLabel>
-                  <h3>Trecia Mae M. Gandia</h3>
-                  <p>Student Developer</p>
-                </IonLabel>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+              <IonIcon icon={peopleOutline} style={{ color: "#7c3aed", fontSize: "18px" }} />
+              <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f2942" }}>Developer</div>
+            </div>
+            <IonList lines="none" style={{ background: "transparent", padding: 0 }}>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
+                <IonLabel><h3>Trecia Mae M. Gandia</h3><p>Student Developer</p></IonLabel>
               </IonItem>
-              <IonItem>
-                <IonLabel>
-                  <h3>ITE 413 – Integrative Programming and Technologies 2</h3>
-                  <p>Final Project</p>
-                </IonLabel>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
+                <IonLabel><h3>ITE 413</h3><p>Integrative Programming and Technologies 2</p></IonLabel>
               </IonItem>
             </IonList>
           </IonCardContent>
         </IonCard>
 
-        {/* Contact Barangay */}
-        <IonCard>
-          <IonCardHeader>
-            <IonCardTitle>
-              <IonIcon icon={callOutline} /> Contact Barangay Antonino
-            </IonCardTitle>
-          </IonCardHeader>
+        <IonCard style={{ borderRadius: "18px", border: "1px solid #e2e8f0", boxShadow: "0 4px 18px rgba(0,0,0,0.04)", marginTop: "16px" }}>
           <IonCardContent>
-            <IonList lines="none">
-              <IonItem>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+              <IonIcon icon={callOutline} style={{ color: "#0d6840", fontSize: "18px" }} />
+              <div style={{ fontSize: "14px", fontWeight: 800, color: "#0f2942" }}>Contact Barangay</div>
+            </div>
+            <IonList lines="none" style={{ background: "transparent", padding: 0 }}>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
                 <IonIcon icon={locationOutline} slot="start" color="primary" />
-                <IonLabel>
-                  <h3>Address</h3>
-                  <p>Barangay Antonino, Philippines</p>
-                </IonLabel>
+                <IonLabel><h3>Address</h3><p>Barangay Antonino, Philippines</p></IonLabel>
               </IonItem>
-              <IonItem>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
                 <IonIcon icon={callOutline} slot="start" color="success" />
-                <IonLabel>
-                  <h3>Hotline</h3>
-                  <p>(000) 000-0000</p>
-                </IonLabel>
+                <IonLabel><h3>Hotline</h3><p>(000) 000-0000</p></IonLabel>
               </IonItem>
-              <IonItem>
+              <IonItem style={{ "--background": "transparent", "--padding-start": "0px", "--inner-padding-end": "0px" }}>
                 <IonIcon icon={mailOutline} slot="start" color="warning" />
-                <IonLabel>
-                  <h3>Email</h3>
-                  <p>barangay.antonino@example.com</p>
-                </IonLabel>
+                <IonLabel><h3>Email</h3><p>barangay.antonino@example.com</p></IonLabel>
               </IonItem>
             </IonList>
           </IonCardContent>
         </IonCard>
 
-        {/* Footer */}
-        <div style={{ textAlign: "center", marginTop: "16px", marginBottom: "32px" }}>
+        <div style={{ textAlign: "center", marginTop: "16px", marginBottom: "24px" }}>
           <IonNote color="medium">
             <p>© {new Date().getFullYear()} eBarangay Antonino</p>
-            <p style={{ fontSize: "12px" }}>
-              Developed for academic purposes only.
-            </p>
           </IonNote>
         </div>
       </IonContent>

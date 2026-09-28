@@ -1,0 +1,114 @@
+﻿rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid))
+          .data.role == 'admin';
+    }
+
+    function validStatus() {
+      return request.resource.data.status in [
+        'Pending', 'In Progress', 'Resolved'
+      ];
+    }
+
+    match /users/{userId} {
+      allow create: if signedIn() &&
+        request.auth.uid == userId &&
+        request.resource.data.uid == userId &&
+        request.resource.data.role == 'resident';
+
+      allow read: if signedIn() &&
+        (request.auth.uid == userId || isAdmin());
+
+      allow update: if isAdmin() ||
+        (signedIn() &&
+         request.auth.uid == userId &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['fullName', 'purok', 'contactNumber']));
+
+      allow delete: if isAdmin();
+    }
+
+    match /requests/{requestId} {
+      allow create: if signedIn() &&
+        request.resource.data.submittedByUid == request.auth.uid &&
+        request.resource.data.status == 'Pending';
+
+      allow read: if signedIn() &&
+        (resource.data.submittedByUid == request.auth.uid || isAdmin());
+
+      // Staff may edit requests at any status, preserving resident ownership.
+      // Residents may edit only their own pending title and description.
+      allow update: if
+        (isAdmin() &&
+         validStatus() &&
+         request.resource.data.submittedByUid == resource.data.submittedByUid)
+        ||
+        (signedIn() &&
+         resource.data.submittedByUid == request.auth.uid &&
+         resource.data.status == 'Pending' &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['title', 'description']));
+
+      allow delete: if isAdmin() ||
+        (signedIn() &&
+         resource.data.submittedByUid == request.auth.uid &&
+         resource.data.status == 'Pending');
+    }
+
+    match /transparencyPosts/{postId} {
+      function validPost() {
+        let post = request.resource.data;
+        // Older posts without imageData remain valid.
+        let image = post.get('imageData', '');
+        return post.keys().hasAll([
+            'title', 'category', 'description',
+            'publishedBy', 'publishedByUid', 'createdAt',
+            'attachmentName', 'attachmentPath'
+          ]) &&
+          post.keys().hasOnly([
+            'title', 'category', 'description',
+            'publishedBy', 'publishedByUid', 'createdAt',
+            'attachmentName', 'attachmentPath', 'imageData'
+          ]) &&
+          post.title is string &&
+          post.title.size() > 0 && post.title.size() <= 150 &&
+          post.description is string &&
+          post.description.size() > 0 && post.description.size() <= 10000 &&
+          post.category in [
+            'Budget & Finances', 'Projects', 'Procurement', 'Reports', 'Other'
+          ] &&
+          post.publishedBy is string && post.publishedBy.size() <= 200 &&
+          post.publishedByUid is string &&
+          post.createdAt is timestamp &&
+          post.attachmentName is string && post.attachmentName.size() <= 255 &&
+          post.attachmentPath is string &&
+          (post.attachmentPath == '' ||
+           post.attachmentPath == 'transparency/' + postId + '/attachment') &&
+          image is string && image.size() <= 820000 &&
+          (image == '' ||
+           (post.attachmentPath == '' &&
+            image.matches('data:image/(jpeg|png);base64,[A-Za-z0-9+/=]+')));
+      }
+
+      allow read: if signedIn();
+
+      allow create: if isAdmin() && validPost() &&
+        request.resource.data.publishedByUid == request.auth.uid &&
+        request.resource.data.createdAt == request.time;
+
+      allow update: if isAdmin() && validPost() &&
+        request.resource.data.publishedByUid == resource.data.publishedByUid &&
+        request.resource.data.createdAt == resource.data.createdAt;
+
+      allow delete: if isAdmin();
+    }
+  }
+}

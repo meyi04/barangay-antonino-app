@@ -18,6 +18,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthChange(async (currentUser) => {
+      setLoading(true);
+      setProfile(null);
       setUser(currentUser);
 
       if (currentUser) {
@@ -44,6 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = (): AuthContextValue => {
   const context = useContext(AuthContext);
   if (!context) {

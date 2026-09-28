@@ -1,4 +1,5 @@
 // src/App.tsx
+import React from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import {
   IonApp,
@@ -13,32 +14,24 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import {
-  addCircle,
-  list,
-  informationCircle,
-  shieldCheckmark,
+  homeOutline,
   documentTextOutline,
+  receiptOutline,
+  shieldCheckmark,
   logOut
 } from 'ionicons/icons';
 
-// Resident pages (existing)
 import Tab1 from './pages/Tab1';
 import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
-
-// Auth pages (new)
+import Services from './pages/Services';
+import TransparencyBoard from './pages/TransparencyBoard';
 import Login from './pages/Login';
 import Register from './pages/Register';
-
-// Staff pages (new)
 import StaffDashboard from './pages/staff/StaffDashboard';
 import ManageRequests from './pages/staff/ManageRequests';
-
-// Auth context & logout
 import { useAuth } from './context/AuthContext';
 import { logoutUser } from './services/authService';
 
-/* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
@@ -54,136 +47,98 @@ import './theme/variables.css';
 
 setupIonicReact();
 
-// ===== RESIDENT TABS =====
 const ResidentTabs: React.FC = () => {
-  const navigate = useNavigate();
-  const handleLogout = async () => {
-    try {
-      await logoutUser();
-      navigate('/login', { replace: true });
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
-  };
-
   return (
-  <IonTabs>
-    <IonRouterOutlet>
-      <Routes>
-        <Route path="/tab1" element={<Tab1 />} />
-        <Route path="/tab2" element={<Tab2 />} />
-        <Route path="/tab3" element={<Tab3 />} />
-        <Route path="/" element={<Navigate to="/tab1" replace />} />
-        <Route path="*" element={<Navigate to="/tab1" replace />} />
-      </Routes>
-    </IonRouterOutlet>
-
-    <IonTabBar slot="bottom">
-      <IonTabButton tab="tab1" href="/tab1">
-        <IonIcon icon={addCircle} />
-        <IonLabel>Submit</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="tab2" href="/tab2">
-        <IonIcon icon={list} />
-        <IonLabel>Requests</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="tab3" href="/tab3">
-        <IonIcon icon={informationCircle} />
-        <IonLabel>About</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="logout" onClick={() => void handleLogout()}>
-        <IonIcon icon={logOut} />
-        <IonLabel>Logout</IonLabel>
-      </IonTabButton>
-    </IonTabBar>
-  </IonTabs>
-);
+    <IonTabs>
+      <IonRouterOutlet>
+        <Routes>
+          <Route path="/tab1" element={<Tab1 />} />
+          <Route path="/tab2" element={<Services />} />
+          <Route path="/tab3" element={<Tab2 />} /><Route path="/transparency" element={<TransparencyBoard />} />
+          <Route path="/" element={<Navigate to="/tab1" replace />} />
+          <Route path="*" element={<Navigate to="/tab1" replace />} />
+        </Routes>
+      </IonRouterOutlet>
+      <IonTabBar slot="bottom">
+        <IonTabButton tab="tab1" href="/tab1">
+          <IonIcon icon={homeOutline} />
+          <IonLabel>Home</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="tab2" href="/tab2">
+          <IonIcon icon={documentTextOutline} />
+          <IonLabel>Services</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="tab3" href="/tab3">
+          <IonIcon icon={receiptOutline} />
+          <IonLabel>My Requests</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="transparency" href="/transparency"><IonIcon icon={documentTextOutline} /><IonLabel>Transparency</IonLabel></IonTabButton>
+      </IonTabBar>
+    </IonTabs>
+  );
 };
 
-// ===== STAFF TABS =====
 const StaffTabs: React.FC = () => {
   const navigate = useNavigate();
   const handleLogout = async () => {
-    try {
-      await logoutUser();
-      navigate('/login', { replace: true });
-    } catch (error) {
-      console.error('Logout failed', error);
-    }
+    try { await logoutUser(); navigate('/login', { replace: true }); }
+    catch (error) { console.error('Logout failed', error); }
   };
-
   return (
-  <IonTabs>
-    <IonRouterOutlet>
-      <Routes>
-        <Route path="/staff/dashboard" element={<StaffDashboard />} />
-        <Route path="/staff/requests" element={<ManageRequests />} />
-        <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/staff/dashboard" replace />} />
-      </Routes>
-    </IonRouterOutlet>
-
-    <IonTabBar slot="bottom">
-      <IonTabButton tab="dashboard" href="/staff/dashboard">
-        <IonIcon icon={shieldCheckmark} />
-        <IonLabel>Dashboard</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="requests" href="/staff/requests">
-        <IonIcon icon={documentTextOutline} />
-        <IonLabel>Manage</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="logout" onClick={() => void handleLogout()}>
-        <IonIcon icon={logOut} />
-        <IonLabel>Logout</IonLabel>
-      </IonTabButton>
-    </IonTabBar>
-  </IonTabs>
-);
+    <IonTabs>
+      <IonRouterOutlet>
+        <Routes>
+          <Route path="/staff/dashboard" element={<StaffDashboard />} />
+          <Route path="/staff/requests" element={<ManageRequests />} /><Route path="/staff/transparency" element={<TransparencyBoard />} />
+          <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/staff/dashboard" replace />} />
+        </Routes>
+      </IonRouterOutlet>
+      <IonTabBar className="staff-tab-bar" slot="bottom">
+        <IonTabButton tab="dashboard" href="/staff/dashboard">
+          <IonIcon icon={shieldCheckmark} />
+          <IonLabel>Dashboard</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="requests" href="/staff/requests">
+          <IonIcon icon={documentTextOutline} />
+          <IonLabel>Manage</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="transparency" href="/staff/transparency"><IonIcon icon={documentTextOutline} /><IonLabel>Transparency</IonLabel></IonTabButton>
+        <IonTabButton tab="logout" onClick={() => void handleLogout()}>
+          <IonIcon icon={logOut} />
+          <IonLabel>Logout</IonLabel>
+        </IonTabButton>
+      </IonTabBar>
+    </IonTabs>
+  );
 };
 
-// ===== MAIN APP =====
 const App: React.FC = () => {
   const { user, profile, loading } = useAuth();
-
-  // ⏳ Loading splash while checking auth
   if (loading) {
     return (
       <IonApp>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100vh',
-          }}
-        >
-          <IonSpinner name="crescent" />
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', gap: '16px', backgroundColor: '#f8fafc' }}>
+          <IonSpinner name="crescent" color="primary" />
+          <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 600 }}>Loading Barangay Antonino Portal...</div>
         </div>
       </IonApp>
     );
   }
-
   return (
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
           {!user ? (
-            // 🔓 Not logged in → Login/Register only
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           ) : profile?.role === 'admin' ? (
-            // 🛡️ Admin → Staff tabs
-            <Routes>
-              <Route path="/*" element={<StaffTabs />} />
-            </Routes>
+            <Routes><Route path="/*" element={<StaffTabs />} /></Routes>
           ) : (
-            // 👤 Resident → Resident tabs
-            <Routes>
-              <Route path="/*" element={<ResidentTabs />} />
-            </Routes>
+            <Routes><Route path="/*" element={<ResidentTabs />} /></Routes>
           )}
         </IonRouterOutlet>
       </IonReactRouter>

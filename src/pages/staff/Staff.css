@@ -1,0 +1,10 @@
+﻿.staff-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 16px 0 24px; }
+.staff-stat { padding: 18px; border: 1px solid #e2e8f0; background: #fff; border-radius: 16px; box-shadow: 0 4px 18px rgba(0,0,0,.04); }
+.staff-stat-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; font-size: 22px; margin-bottom: 12px; }
+.staff-stat strong { display: block; color: #0f2942; font-size: 28px; font-weight: 800; }
+.staff-stat > span:last-child { font-size: 12px; color: #64748b; }
+.staff-note { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 1px dashed #cbd5e1; border-radius: 14px; background: #f8fafc; color: #64748b; font-size: 12px; line-height: 1.6; }
+.staff-note ion-icon { font-size: 22px; flex-shrink: 0; color: #0d6840; }
+.staff-tab-bar { --background: #fff; --border: 1px solid #e2e8f0; }
+.staff-tab-bar ion-tab-button { --color: #64748b; --color-selected: #0d6840; font-size: 10px; }
+@media (min-width: 680px) { .staff-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

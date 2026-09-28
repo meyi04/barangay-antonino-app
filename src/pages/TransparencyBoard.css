@@ -1,0 +1,19 @@
+﻿.board-composer { margin-bottom: 24px; }
+.board-file { padding: 18px; }
+.board-file label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.board-file input { width: 100%; font-size: 12px; }
+.board-filters { margin: 14px 0; padding: 8px 14px; border: 1px solid #e2e8f0; background: #fff; border-radius: 16px; }
+.board-filters ion-searchbar { --background: #fff; --color: #0f172a; --placeholder-color: #64748b; --box-shadow: none; padding: 0; }
+.board-filters ion-select { font-size: 13px; }
+.board-post { padding: 18px; margin-bottom: 14px; border-radius: 16px; border: 1px solid #e2e8f0; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.05); overflow-wrap: anywhere; }
+.board-post-top, .board-post-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 11px; color: #64748b; }
+.board-post ion-badge { border-radius: 6px; padding: 5px 8px; font-size: 10px; }
+.board-post h2 { font-size: 17px; font-weight: 800; color: #0f2942; margin: 14px 0 8px; }
+.board-description { white-space: pre-wrap; font-size: 13px; line-height: 1.65; color: #475569; }
+.board-post-footer { border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 16px; }
+.board-page ion-button { text-transform: none; --border-radius: 10px; font-weight: 600; font-size: 12px; }
+.board-empty { padding: 30px 20px; text-align: center; border: 1px dashed #cbd5e1; border-radius: 16px; background: #fff; color: #64748b; font-size: 13px; }
+.board-empty ion-icon { font-size: 30px; color: #0d6840; }
+.board-empty h3 { font-size: 16px; font-weight: 700; color: #0f2942; }
+.board-page .services-error { margin: 12px 0; }
+.board-image { display: block; width: 100%; max-height: 560px; object-fit: contain; border-radius: 12px; margin: 14px 0; background: #f8fafc; }
