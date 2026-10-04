@@ -36,6 +36,19 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    match /users/{userId}/fcmTokens/{tokenId} {
+      allow create, update: if signedIn() &&
+        request.auth.uid == userId &&
+        request.resource.data.keys().hasAll(['token', 'platform', 'updatedAt']) &&
+        request.resource.data.keys().hasOnly(['token', 'platform', 'updatedAt']) &&
+        request.resource.data.token is string &&
+        request.resource.data.token.size() <= 4096 &&
+        request.resource.data.platform in ['android', 'web'] &&
+        request.resource.data.updatedAt is timestamp;
+
+      allow delete: if signedIn() && request.auth.uid == userId;
+    }
+
     match /requests/{requestId} {
       allow create: if signedIn() &&
         request.resource.data.submittedByUid == request.auth.uid &&

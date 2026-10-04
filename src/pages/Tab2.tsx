@@ -1,5 +1,6 @@
 import ResidentLogout from '../components/ResidentLogout';
 import React, { useEffect, useMemo, useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import {
   IonAlert,
   IonBadge,
@@ -27,6 +28,7 @@ import {
   createOutline,
   documentTextOutline,
   filterOutline,
+  notificationsOutline,
   trashOutline,
   warningOutline,
 } from "ionicons/icons";
@@ -42,7 +44,7 @@ import './Tab2.css';
 const statuses = ["All", "Pending", "In Progress", "Resolved"];
 
 const Tab2: React.FC = () => {
-  const { user } = useAuth();
+  const { user, enablePushNotifications } = useAuth();
   const navigate = useNavigate();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,6 +59,10 @@ const Tab2: React.FC = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
   const [updateData, setUpdateData] = useState<{ title: string; description: string } | null>(null);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [browserPermission, setBrowserPermission] = useState<NotificationPermission | "unsupported">(
+    () => typeof Notification === "undefined" ? "unsupported" : Notification.permission
+  );
 
   useEffect(() => {
     if (!user) {
@@ -106,6 +112,22 @@ const Tab2: React.FC = () => {
     setToastMsg(message);
     setToastColor(color);
     setShowToast(true);
+  };
+
+  const enableNotifications = async () => {
+    setPushBusy(true);
+    try {
+      await enablePushNotifications();
+      setBrowserPermission("granted");
+      showToastMsg("Request notifications enabled.", "success");
+    } catch (error) {
+      if (typeof Notification !== "undefined") {
+        setBrowserPermission(Notification.permission);
+      }
+      showToastMsg(error instanceof Error ? error.message : "Unable to enable notifications.", "danger");
+    } finally {
+      setPushBusy(false);
+    }
   };
 
   const openDetails = (request: ServiceRequest) => {
@@ -231,78 +253,87 @@ const Tab2: React.FC = () => {
             <h1>My Requests</h1>
             <p>Keep track of your certificates and community concerns, from submission to resolution.</p>
           </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "10px", marginBottom: "16px" }}>
-          {[{ label: "Pending", value: stats.pending, color: "#f59e0b" }, { label: "In Progress", value: stats.inProgress, color: "#2563eb" }, { label: "Resolved", value: stats.resolved, color: "#16a34a" }].map((item) => (
-            <div key={item.label} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "16px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)", padding: "12px 10px", textAlign: "center" }}>
-              <div style={{ fontSize: "18px", fontWeight: 800, color: item.color }}>{item.value}</div>
-              <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>{item.label}</div>
+          {!Capacitor.isNativePlatform() && browserPermission !== "unsupported" && browserPermission !== "granted" && (
+            <div style={{ background: "#fff", border: "1px solid #dce7df", borderRadius: "12px", padding: "10px 12px", marginBottom: "14px" }}>
+              <IonButton expand="block" fill="outline" disabled={pushBusy || browserPermission === "denied"} onClick={() => void enableNotifications()}>
+                <IonIcon icon={notificationsOutline} slot="start" />
+                {pushBusy ? "Enabling..." : browserPermission === "denied" ? "Notifications Blocked" : "Enable Status Notifications"}
+              </IonButton>
+              {browserPermission === "denied" && <p style={{ margin: "6px 4px 0", fontSize: "12px", color: "#64748b" }}>Allow notifications for this site in your browser settings.</p>}
             </div>
-          ))}
-        </div>
-
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "8px 12px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)", marginBottom: "12px" }}>
-          <IonSearchbar
-            placeholder="Search ticket or title"
-            value={searchTerm}
-            onIonChange={(event) => setSearchTerm(event.detail.value ?? "")}
-            style={{ padding: 0 }}
-          />
-        </div>
-
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "14px", padding: "4px", marginBottom: "14px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)" }}>
-          <IonSegment value={selectedStatus} onIonChange={(e) => setSelectedStatus(e.detail.value as string)}>
-            {statuses.map((status) => (
-              <IonSegmentButton key={status} value={status}>
-                <IonLabel>{status}</IonLabel>
-              </IonSegmentButton>
+          )}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "10px", marginBottom: "16px" }}>
+            {[{ label: "Pending", value: stats.pending, color: "#f59e0b" }, { label: "In Progress", value: stats.inProgress, color: "#2563eb" }, { label: "Resolved", value: stats.resolved, color: "#16a34a" }].map((item) => (
+              <div key={item.label} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "16px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)", padding: "12px 10px", textAlign: "center" }}>
+                <div style={{ fontSize: "18px", fontWeight: 800, color: item.color }}>{item.value}</div>
+                <div style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>{item.label}</div>
+              </div>
             ))}
-          </IonSegment>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", paddingLeft: "4px" }}>
-          <IonIcon icon={filterOutline} style={{ color: "#0d6840", fontSize: "18px" }} />
-          <span style={{ fontSize: "12px", fontWeight: 700, color: "#0f2942" }}>Your Requests ({filtered.length})</span>
-        </div>
-
-        {filtered.length === 0 ? (
-          <div style={{ background: "#fff", border: "1px dashed #cbd5e1", borderRadius: "16px", padding: "32px 20px", textAlign: "center" }}>
-            <IonIcon icon={warningOutline} style={{ fontSize: "28px", color: "#94a3b8" }} />
-            <div style={{ marginTop: "8px", fontWeight: 700, color: "#475569" }}>{requests.length === 0 ? "No requests yet" : "No matching requests"}</div>
-            <p className="requests-empty-hint">{requests.length === 0 ? "Apply for a certificate or submit a complaint to get started." : "Try a different search or status filter."}</p>
-            {requests.length === 0 ? <IonButton onClick={() => navigate("/tab2")}>Browse Services</IonButton> : <IonButton fill="outline" onClick={() => { setSearchTerm(""); setSelectedStatus("All"); }}>Clear Filters</IonButton>}
           </div>
-        ) : (
-          <IonList className="requests-list" lines="none" style={{ background: "transparent", padding: 0 }}>
-            {filtered.map((request) => (
-              <IonItem key={request.id} button onClick={() => openDetails(request)} style={{ "--background": "#fff", border: "1px solid #e2e8f0", borderRadius: "14px", marginBottom: "10px", overflow: "hidden" }}>
-                <div slot="start" style={{ width: "46px", height: "46px", borderRadius: "12px", background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <IonIcon icon={documentTextOutline} style={{ color: "#0d6840", fontSize: "22px" }} />
-                </div>
-                <IonLabel>
-                  <h2 style={{ fontWeight: 800, color: "#0f172a" }}>{request.title}</h2>
-                  <p style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
-                    <strong>{request.ticketNo}</strong> • {request.category}
-                  </p>
-                  <p style={{ fontSize: "11px", color: "#64748b" }}>{request.purok} • {request.submittedByName}</p>
-                  <div style={{ display: "flex", gap: "6px", marginTop: "8px", flexWrap: "wrap" }}>
-                    <IonBadge color={getStatusColor(request.status)}>{request.status}</IonBadge>
-                    <IonBadge color="medium">{request.priority}</IonBadge>
+
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "8px 12px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)", marginBottom: "12px" }}>
+            <IonSearchbar
+              placeholder="Search ticket or title"
+              value={searchTerm}
+              onIonChange={(event) => setSearchTerm(event.detail.value ?? "")}
+              style={{ padding: 0 }}
+            />
+          </div>
+
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "14px", padding: "4px", marginBottom: "14px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)" }}>
+            <IonSegment value={selectedStatus} onIonChange={(e) => setSelectedStatus(e.detail.value as string)}>
+              {statuses.map((status) => (
+                <IonSegmentButton key={status} value={status}>
+                  <IonLabel>{status}</IonLabel>
+                </IonSegmentButton>
+              ))}
+            </IonSegment>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", paddingLeft: "4px" }}>
+            <IonIcon icon={filterOutline} style={{ color: "#0d6840", fontSize: "18px" }} />
+            <span style={{ fontSize: "12px", fontWeight: 700, color: "#0f2942" }}>Your Requests ({filtered.length})</span>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div style={{ background: "#fff", border: "1px dashed #cbd5e1", borderRadius: "16px", padding: "32px 20px", textAlign: "center" }}>
+              <IonIcon icon={warningOutline} style={{ fontSize: "28px", color: "#94a3b8" }} />
+              <div style={{ marginTop: "8px", fontWeight: 700, color: "#475569" }}>{requests.length === 0 ? "No requests yet" : "No matching requests"}</div>
+              <p className="requests-empty-hint">{requests.length === 0 ? "Apply for a certificate or submit a complaint to get started." : "Try a different search or status filter."}</p>
+              {requests.length === 0 ? <IonButton onClick={() => navigate("/tab2")}>Browse Services</IonButton> : <IonButton fill="outline" onClick={() => { setSearchTerm(""); setSelectedStatus("All"); }}>Clear Filters</IonButton>}
+            </div>
+          ) : (
+            <IonList className="requests-list" lines="none" style={{ background: "transparent", padding: 0 }}>
+              {filtered.map((request) => (
+                <IonItem key={request.id} button onClick={() => openDetails(request)} style={{ "--background": "#fff", border: "1px solid #e2e8f0", borderRadius: "14px", marginBottom: "10px", overflow: "hidden" }}>
+                  <div slot="start" style={{ width: "46px", height: "46px", borderRadius: "12px", background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <IonIcon icon={documentTextOutline} style={{ color: "#0d6840", fontSize: "22px" }} />
                   </div>
-                </IonLabel>
-                {request.status === "Pending" && (
-                  <div slot="end" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                    <IonButton fill="clear" size="small" color="primary" aria-label="Edit request" onClick={(event) => { event.stopPropagation(); openUpdate(request); }}>
-                      <IonIcon icon={createOutline} slot="icon-only" />
-                    </IonButton>
-                    <IonButton fill="clear" size="small" color="danger" aria-label="Delete request" onClick={(event) => { event.stopPropagation(); confirmDelete(request.id!); }}>
-                      <IonIcon icon={trashOutline} slot="icon-only" />
-                    </IonButton>
-                  </div>
-                )}
-              </IonItem>
-            ))}
-          </IonList>
-        )}
+                  <IonLabel>
+                    <h2 style={{ fontWeight: 800, color: "#0f172a" }}>{request.title}</h2>
+                    <p style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+                      <strong>{request.ticketNo}</strong> • {request.category}
+                    </p>
+                    <p style={{ fontSize: "11px", color: "#64748b" }}>{request.purok} • {request.submittedByName}</p>
+                    <div style={{ display: "flex", gap: "6px", marginTop: "8px", flexWrap: "wrap" }}>
+                      <IonBadge color={getStatusColor(request.status)}>{request.status}</IonBadge>
+                      <IonBadge color="medium">{request.priority}</IonBadge>
+                    </div>
+                  </IonLabel>
+                  {request.status === "Pending" && (
+                    <div slot="end" style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      <IonButton fill="clear" size="small" color="primary" aria-label="Edit request" onClick={(event) => { event.stopPropagation(); openUpdate(request); }}>
+                        <IonIcon icon={createOutline} slot="icon-only" />
+                      </IonButton>
+                      <IonButton fill="clear" size="small" color="danger" aria-label="Delete request" onClick={(event) => { event.stopPropagation(); confirmDelete(request.id!); }}>
+                        <IonIcon icon={trashOutline} slot="icon-only" />
+                      </IonButton>
+                    </div>
+                  )}
+                </IonItem>
+              ))}
+            </IonList>
+          )}
 
         </div>
         <IonModal className="requests-details" isOpen={isModalOpen} onDidDismiss={() => setIsModalOpen(false)} breakpoints={[0, 0.75, 0.95]} initialBreakpoint={0.75}>
