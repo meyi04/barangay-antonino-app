@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
-  IonAlert,
   IonBadge,
   IonButton,
   IonCard,
@@ -8,11 +7,14 @@ import {
   IonContent,
   IonHeader,
   IonIcon,
+  IonInput,
   IonItem,
   IonLabel,
   IonList,
   IonModal,
   IonPage,
+  IonSelect,
+  IonSelectOption,
   IonSearchbar,
   IonSpinner,
   IonSegment,
@@ -22,9 +24,10 @@ import {
   IonToolbar,
 } from "@ionic/react";
 import { closeOutline, documentTextOutline, filterOutline, warningOutline } from "ionicons/icons";
-import { collection, doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { collection, doc, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import type { ServiceRequest } from "../../models/serviceRequest";
+import type * as RequestReceiptService from "../../services/requestReceiptService";
 
 import BarangayLogo from '../../components/BarangayLogo';
 import '../Services.css';
@@ -43,7 +46,10 @@ const ManageRequests: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [showStatusAlert, setShowStatusAlert] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [statusDraft, setStatusDraft] = useState("Pending");
+  const [feeAmount, setFeeAmount] = useState("");
+  const [feeDescription, setFeeDescription] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
@@ -74,22 +80,53 @@ const ManageRequests: React.FC = () => {
     });
   }, [requests, search, selectedStatus]);
 
-  const updateStatus = async (newStatus: string) => {
-    if (!selectedRequest?.id || saving || !statuses.slice(1).includes(newStatus)) return;
+  const updateStatus = async () => {
+    if (!selectedRequest?.id || saving || !statuses.slice(1).includes(statusDraft)) return;
+    const amount = feeAmount.trim() === "" ? 0 : Number(feeAmount);
+    if (!Number.isFinite(amount) || amount < 0) {
+      setToastColor('warning');
+      setToastMsg("Enter a valid non-negative fee amount.");
+      setShowToast(true);
+      return;
+    }
+
     setSaving(true);
+    let receiptService: typeof RequestReceiptService | null = null;
 
     try {
-      await updateDoc(doc(db, "requests", selectedRequest.id), { status: newStatus });
+      receiptService = await import("../../services/requestReceiptService");
+      const resolved = statusDraft === "Resolved";
+      const receiptPdfData = resolved
+        ? ""
+        : receiptService.createRequestReceipt(selectedRequest, amount, feeDescription.trim(), new Date());
+
+      await updateDoc(doc(db, "requests", selectedRequest.id), {
+        status: statusDraft,
+        receiptPdfData,
+        receiptFeeAmount: resolved ? 0 : amount,
+        receiptFeeDescription: resolved ? "" : feeDescription.trim(),
+        receiptIssuedAt: resolved ? null : serverTimestamp(),
+      });
+
       setToastColor('success');
-      setToastMsg(`Status updated to "${newStatus}".`);
+      setToastMsg(`Status updated to "${statusDraft}". Receipt ${resolved ? "cleared" : "issued"}.`);
       setShowToast(true);
+      setShowStatusModal(false);
       setShowModal(false);
     } catch (error) {
       console.error(error);
       setToastColor('danger');
-      setToastMsg("Failed to update status.");
+      setToastMsg(error instanceof Error ? error.message : "Failed to update status or save the receipt. Check Firestore permissions and try again.");
       setShowToast(true);
     } finally { setSaving(false); }
+  };
+
+  const openStatusModal = () => {
+    if (!selectedRequest) return;
+    setStatusDraft(selectedRequest.status);
+    setFeeAmount(selectedRequest.receiptFeeAmount ? String(selectedRequest.receiptFeeAmount) : "");
+    setFeeDescription(selectedRequest.receiptFeeDescription || "");
+    setShowStatusModal(true);
   };
 
   const getStatusColor = (status: string) => {
@@ -112,57 +149,57 @@ const ManageRequests: React.FC = () => {
         <div className="services-shell">
           <p className="services-eyebrow">Staff Portal • Manage Requests</p>
           <div className="services-hero"><span className="services-pill"><IonIcon icon={documentTextOutline} /> Resident Services</span><h1>Manage Requests</h1><p>Review certificate applications and community complaints. Keep residents informed by updating each request's status.</p></div>
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "8px 12px", marginBottom: "12px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)" }}>
-          <IonSearchbar
-            placeholder="Search ticket or resident"
-            value={search}
-            onIonChange={(event) => setSearch(event.detail.value ?? "")}
-            style={{ padding: 0 }}
-          />
-        </div>
-
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "14px", padding: "4px", marginBottom: "14px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)" }}>
-          <IonSegment value={selectedStatus} onIonChange={(event) => setSelectedStatus(event.detail.value as string)}>
-            {statuses.map((status) => (
-              <IonSegmentButton key={status} value={status}>
-                <IonLabel>{status}</IonLabel>
-              </IonSegmentButton>
-            ))}
-          </IonSegment>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", paddingLeft: "4px" }}>
-          <IonIcon icon={filterOutline} style={{ color: "#0d6840", fontSize: "18px" }} />
-          <span style={{ fontSize: "12px", fontWeight: 700, color: "#0f2942" }}>Request Queue</span>
-        </div>
-
-        {loading ? <div role="status"><IonSpinner /><p>Loading requests...</p></div> : loadError ? <p role="alert" className="services-error">{loadError}</p> : filtered.length === 0 ? (
-          <div style={{ background: "#fff", border: "1px dashed #cbd5e1", borderRadius: "16px", padding: "32px 20px", textAlign: "center" }}>
-            <IonIcon icon={warningOutline} style={{ fontSize: "28px", color: "#94a3b8" }} />
-            <div style={{ marginTop: "8px", fontWeight: 700, color: "#475569" }}>No matching requests found.</div>
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "8px 12px", marginBottom: "12px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)" }}>
+            <IonSearchbar
+              placeholder="Search ticket or resident"
+              value={search}
+              onIonChange={(event) => setSearch(event.detail.value ?? "")}
+              style={{ padding: 0 }}
+            />
           </div>
-        ) : (
-          <IonList className="requests-list" lines="none" style={{ background: "transparent", padding: 0 }}>
-            {filtered.map((request) => (
-              <IonItem key={request.id} button onClick={() => { setSelectedRequest(request); setShowModal(true); }} style={{ "--background": "#fff", border: "1px solid #e2e8f0", borderRadius: "14px", marginBottom: "10px", overflow: "hidden" }}>
-                <div slot="start" style={{ width: "46px", height: "46px", borderRadius: "12px", background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <IonIcon icon={documentTextOutline} style={{ color: "#0d6840", fontSize: "22px" }} />
-                </div>
-                <IonLabel>
-                  <h2 style={{ fontWeight: 800, color: "#0f172a" }}>{request.title}</h2>
-                  <p style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
-                    <strong>{request.ticketNo}</strong> • {request.category}
-                  </p>
-                  <p style={{ fontSize: "11px", color: "#64748b" }}>{request.submittedByName} • {request.purok}</p>
-                  <div style={{ display: "flex", gap: "6px", marginTop: "8px", flexWrap: "wrap" }}>
-                    <IonBadge color={getStatusColor(request.status)}>{request.status}</IonBadge>
-                    <IonBadge color="medium">{request.priority}</IonBadge>
+
+          <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "14px", padding: "4px", marginBottom: "14px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)" }}>
+            <IonSegment value={selectedStatus} onIonChange={(event) => setSelectedStatus(event.detail.value as string)}>
+              {statuses.map((status) => (
+                <IonSegmentButton key={status} value={status}>
+                  <IonLabel>{status}</IonLabel>
+                </IonSegmentButton>
+              ))}
+            </IonSegment>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", paddingLeft: "4px" }}>
+            <IonIcon icon={filterOutline} style={{ color: "#0d6840", fontSize: "18px" }} />
+            <span style={{ fontSize: "12px", fontWeight: 700, color: "#0f2942" }}>Request Queue</span>
+          </div>
+
+          {loading ? <div role="status"><IonSpinner /><p>Loading requests...</p></div> : loadError ? <p role="alert" className="services-error">{loadError}</p> : filtered.length === 0 ? (
+            <div style={{ background: "#fff", border: "1px dashed #cbd5e1", borderRadius: "16px", padding: "32px 20px", textAlign: "center" }}>
+              <IonIcon icon={warningOutline} style={{ fontSize: "28px", color: "#94a3b8" }} />
+              <div style={{ marginTop: "8px", fontWeight: 700, color: "#475569" }}>No matching requests found.</div>
+            </div>
+          ) : (
+            <IonList className="requests-list" lines="none" style={{ background: "transparent", padding: 0 }}>
+              {filtered.map((request) => (
+                <IonItem key={request.id} button onClick={() => { setSelectedRequest(request); setShowModal(true); }} style={{ "--background": "#fff", border: "1px solid #e2e8f0", borderRadius: "14px", marginBottom: "10px", overflow: "hidden" }}>
+                  <div slot="start" style={{ width: "46px", height: "46px", borderRadius: "12px", background: "#ecfdf5", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <IonIcon icon={documentTextOutline} style={{ color: "#0d6840", fontSize: "22px" }} />
                   </div>
-                </IonLabel>
-              </IonItem>
-            ))}
-          </IonList>
-        )}
+                  <IonLabel>
+                    <h2 style={{ fontWeight: 800, color: "#0f172a" }}>{request.title}</h2>
+                    <p style={{ fontSize: "11px", color: "#64748b", marginTop: "4px" }}>
+                      <strong>{request.ticketNo}</strong> • {request.category}
+                    </p>
+                    <p style={{ fontSize: "11px", color: "#64748b" }}>{request.submittedByName} • {request.purok}</p>
+                    <div style={{ display: "flex", gap: "6px", marginTop: "8px", flexWrap: "wrap" }}>
+                      <IonBadge color={getStatusColor(request.status)}>{request.status}</IonBadge>
+                      <IonBadge color="medium">{request.priority}</IonBadge>
+                    </div>
+                  </IonLabel>
+                </IonItem>
+              ))}
+            </IonList>
+          )}
 
         </div>
         <IonModal className="requests-details" isOpen={showModal} onDidDismiss={() => setShowModal(false)} breakpoints={[0, 0.75, 0.95]} initialBreakpoint={0.75}>
@@ -198,7 +235,7 @@ const ManageRequests: React.FC = () => {
                   <IonItem><IonLabel><h3>Contact</h3><p>{selectedRequest.contactNumber}</p></IonLabel></IonItem>
                 </IonList>
 
-                <IonButton expand="block" color="primary" disabled={saving} style={{ marginTop: "16px" }} onClick={() => setShowStatusAlert(true)}>
+                <IonButton expand="block" color="primary" disabled={saving} style={{ marginTop: "16px" }} onClick={openStatusModal}>
                   {saving ? "Saving..." : "Change Status"}
                 </IonButton>
               </>
@@ -206,29 +243,40 @@ const ManageRequests: React.FC = () => {
           </IonContent>
         </IonModal>
 
-        <IonAlert
-          isOpen={showStatusAlert}
-          onDidDismiss={() => setShowStatusAlert(false)}
-          header="Update Status"
-          inputs={[
-            { label: "Pending", type: "radio", value: "Pending", checked: selectedRequest?.status === "Pending" },
-            { label: "In Progress", type: "radio", value: "In Progress", checked: selectedRequest?.status === "In Progress" },
-            { label: "Resolved", type: "radio", value: "Resolved", checked: selectedRequest?.status === "Resolved" },
-          ]}
-          buttons={[
-            { text: "Cancel", role: "cancel" },
-            {
-              text: "Save",
-              handler: (value) => {
-                if (value) {
-                  void updateStatus(value);
-                  return true;
-                }
-                return false;
-              },
-            },
-          ]}
-        />
+        <IonModal isOpen={showStatusModal} onDidDismiss={() => setShowStatusModal(false)}>
+          <IonHeader>
+            <IonToolbar className="services-toolbar">
+              <IonTitle style={{ fontSize: "15px", fontWeight: 700 }}>Update Progress & Fee</IonTitle>
+              <IonButton aria-label="Close status editor" slot="end" fill="clear" color="light" onClick={() => setShowStatusModal(false)}>
+                <IonIcon icon={closeOutline} />
+              </IonButton>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent className="ion-padding">
+            <IonList lines="full">
+              <IonItem>
+                <IonLabel position="stacked">Request status</IonLabel>
+                <IonSelect value={statusDraft} onIonChange={(event) => setStatusDraft(event.detail.value)} interface="popover">
+                  {statuses.slice(1).map((status) => <IonSelectOption key={status} value={status}>{status}</IonSelectOption>)}
+                </IonSelect>
+              </IonItem>
+              <IonItem>
+                <IonLabel position="stacked">Service fee (PHP, optional)</IonLabel>
+                <IonInput type="number" min="0" step="0.01" inputMode="decimal" value={feeAmount} onIonInput={(event) => setFeeAmount(event.detail.value ?? "")} placeholder="0.00" />
+              </IonItem>
+              <IonItem>
+                <IonLabel position="stacked">Fee details (optional)</IonLabel>
+                <IonInput value={feeDescription} onIonInput={(event) => setFeeDescription(event.detail.value ?? "")} placeholder="Reason or service covered" />
+              </IonItem>
+            </IonList>
+            <p style={{ color: "#64748b", fontSize: "12px", lineHeight: 1.5 }}>
+              A branded PDF receipt will be available to the resident after saving. Marking the request Resolved clears the resident's receipt.
+            </p>
+            <IonButton expand="block" disabled={saving} onClick={() => void updateStatus()}>
+              {saving ? "Saving receipt..." : "Save Status & Receipt"}
+            </IonButton>
+          </IonContent>
+        </IonModal>
 
         <IonToast
           isOpen={showToast}

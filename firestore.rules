@@ -18,6 +18,12 @@ service cloud.firestore {
       ];
     }
 
+    function validReceiptData() {
+      let receipt = request.resource.data.get('receiptPdfData', '');
+      return receipt is string && receipt.size() <= 700000 &&
+        (receipt == '' || receipt.matches('data:application/pdf;base64,[A-Za-z0-9+/=]+'));
+    }
+
     match /users/{userId} {
       allow create: if signedIn() &&
         request.auth.uid == userId &&
@@ -62,6 +68,9 @@ service cloud.firestore {
       allow update: if
         (isAdmin() &&
          validStatus() &&
+         validReceiptData() &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['status', 'receiptPdfData', 'receiptFeeAmount', 'receiptFeeDescription', 'receiptIssuedAt']) &&
          request.resource.data.submittedByUid == resource.data.submittedByUid)
         ||
         (signedIn() &&

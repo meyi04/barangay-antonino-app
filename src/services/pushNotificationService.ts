@@ -39,34 +39,33 @@ export async function registerResidentPushNotifications(
     let tokenListener: PluginListenerHandle | undefined;
 
     const saveToken = (token: string) => {
-        pendingWrites = pendingWrites
-            .then(async () => {
-                if (!active) return;
+        const write = pendingWrites.then(async () => {
+            if (!active) return;
 
-                const nextTokenDocument = doc(
-                    db,
-                    "users",
-                    uid,
-                    "fcmTokens",
-                    encodeURIComponent(token)
-                );
+            const nextTokenDocument = doc(
+                db,
+                "users",
+                uid,
+                "fcmTokens",
+                encodeURIComponent(token)
+            );
 
-                if (tokenDocument && tokenDocument.path !== nextTokenDocument.path) {
-                    await deleteDoc(tokenDocument);
-                }
+            if (tokenDocument && tokenDocument.path !== nextTokenDocument.path) {
+                await deleteDoc(tokenDocument);
+            }
 
-                await setDoc(nextTokenDocument, {
-                    token,
-                    platform: isAndroid ? "android" : "web",
-                    updatedAt: serverTimestamp(),
-                });
-                tokenDocument = nextTokenDocument;
-            })
-            .catch((error) => {
-                console.error("Unable to save the FCM registration token", error);
+            await setDoc(nextTokenDocument, {
+                token,
+                platform: isAndroid ? "android" : "web",
+                updatedAt: serverTimestamp(),
             });
+            tokenDocument = nextTokenDocument;
+        });
+        pendingWrites = write.catch((error) => {
+            console.error("Unable to save the FCM registration token", error);
+        });
 
-        return pendingWrites;
+        return write;
     };
 
     const stop = async () => {
@@ -88,7 +87,9 @@ export async function registerResidentPushNotifications(
     try {
         if (isAndroid) {
             tokenListener = await FirebaseMessaging.addListener("tokenReceived", ({ token }) => {
-                void saveToken(token);
+                void saveToken(token).catch((error) => {
+                    console.error("Unable to update the FCM registration token", error);
+                });
             });
         }
 

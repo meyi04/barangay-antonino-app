@@ -1,6 +1,5 @@
 import ResidentLogout from '../components/ResidentLogout';
 import React, { useEffect, useMemo, useState } from "react";
-import { Capacitor } from "@capacitor/core";
 import {
   IonAlert,
   IonBadge,
@@ -27,8 +26,8 @@ import {
   closeOutline,
   createOutline,
   documentTextOutline,
+  downloadOutline,
   filterOutline,
-  notificationsOutline,
   trashOutline,
   warningOutline,
 } from "ionicons/icons";
@@ -44,7 +43,7 @@ import './Tab2.css';
 const statuses = ["All", "Pending", "In Progress", "Resolved"];
 
 const Tab2: React.FC = () => {
-  const { user, enablePushNotifications } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [requests, setRequests] = useState<ServiceRequest[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -59,10 +58,6 @@ const Tab2: React.FC = () => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
   const [updateData, setUpdateData] = useState<{ title: string; description: string } | null>(null);
-  const [pushBusy, setPushBusy] = useState(false);
-  const [browserPermission, setBrowserPermission] = useState<NotificationPermission | "unsupported">(
-    () => typeof Notification === "undefined" ? "unsupported" : Notification.permission
-  );
 
   useEffect(() => {
     if (!user) {
@@ -108,25 +103,41 @@ const Tab2: React.FC = () => {
     };
   }, [requests]);
 
+  const availableReceipts = useMemo(
+    () => requests.filter((request) => request.status !== "Resolved" && request.receiptPdfData),
+    [requests],
+  );
+
   const showToastMsg = (message: string, color: string) => {
     setToastMsg(message);
     setToastColor(color);
     setShowToast(true);
   };
 
-  const enableNotifications = async () => {
-    setPushBusy(true);
+  const downloadReceipt = async (request: ServiceRequest) => {
+    if (!request.receiptPdfData || request.status === "Resolved") return;
     try {
-      await enablePushNotifications();
-      setBrowserPermission("granted");
-      showToastMsg("Request notifications enabled.", "success");
-    } catch (error) {
-      if (typeof Notification !== "undefined") {
-        setBrowserPermission(Notification.permission);
+      const [metadata, base64] = request.receiptPdfData.split(",", 2);
+      if (metadata !== "data:application/pdf;base64" || !base64) {
+        throw new Error("Invalid receipt PDF data.");
       }
-      showToastMsg(error instanceof Error ? error.message : "Unable to enable notifications.", "danger");
-    } finally {
-      setPushBusy(false);
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) {
+        bytes[index] = binary.charCodeAt(index);
+      }
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${request.ticketNo || request.id}-receipt.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (error) {
+      console.error(error);
+      showToastMsg("Unable to download this receipt. Check your connection and try again.", "danger");
     }
   };
 
@@ -253,14 +264,21 @@ const Tab2: React.FC = () => {
             <h1>My Requests</h1>
             <p>Keep track of your certificates and community concerns, from submission to resolution.</p>
           </div>
-          {!Capacitor.isNativePlatform() && browserPermission !== "unsupported" && browserPermission !== "granted" && (
-            <div style={{ background: "#fff", border: "1px solid #dce7df", borderRadius: "12px", padding: "10px 12px", marginBottom: "14px" }}>
-              <IonButton expand="block" fill="outline" disabled={pushBusy || browserPermission === "denied"} onClick={() => void enableNotifications()}>
-                <IonIcon icon={notificationsOutline} slot="start" />
-                {pushBusy ? "Enabling..." : browserPermission === "denied" ? "Notifications Blocked" : "Enable Status Notifications"}
-              </IonButton>
-              {browserPermission === "denied" && <p style={{ margin: "6px 4px 0", fontSize: "12px", color: "#64748b" }}>Allow notifications for this site in your browser settings.</p>}
-            </div>
+          {availableReceipts.length > 0 && (
+            <section aria-label="Available request receipts" style={{ background: "#fff", border: "1px solid #dce7df", borderRadius: "12px", padding: "12px", marginBottom: "14px" }}>
+              <h2 style={{ margin: "0 0 8px", color: "#0f2942", fontSize: "14px", fontWeight: 800 }}>Available Receipts</h2>
+              {availableReceipts.map((request) => (
+                <div key={request.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", borderTop: "1px solid #e2e8f0", paddingTop: "8px", marginTop: "8px" }}>
+                  <div style={{ minWidth: 0 }}>
+                    <strong style={{ display: "block", color: "#0f172a", fontSize: "12px" }}>{request.ticketNo || request.title}</strong>
+                    <span style={{ color: "#64748b", fontSize: "11px" }}>PHP {(request.receiptFeeAmount || 0).toFixed(2)}</span>
+                  </div>
+                  <IonButton fill="outline" size="small" onClick={() => void downloadReceipt(request)}>
+                    <IonIcon icon={downloadOutline} slot="start" /> PDF
+                  </IonButton>
+                </div>
+              ))}
+            </section>
           )}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: "10px", marginBottom: "16px" }}>
             {[{ label: "Pending", value: stats.pending, color: "#f59e0b" }, { label: "In Progress", value: stats.inProgress, color: "#2563eb" }, { label: "Resolved", value: stats.resolved, color: "#16a34a" }].map((item) => (

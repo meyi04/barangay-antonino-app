@@ -15,4 +15,8 @@ export interface ServiceRequest {
   submittedByUid?: string;  // Firebase Auth UID of the submitting resident
   contactNumber: string;    // 09xxxxxxxxx
   createdAt?: Timestamp | FieldValue | null; // Firestore timestamp
+  receiptPdfData?: string;
+  receiptFeeAmount?: number;
+  receiptFeeDescription?: string;
+  receiptIssuedAt?: Timestamp | FieldValue | null;
 }

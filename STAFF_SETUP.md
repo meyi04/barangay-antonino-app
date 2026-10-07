@@ -29,7 +29,7 @@ The app uses `admin` as the internal role name for barangay staff. Use the norma
 
 ## Staff workspace
 - Dashboard: live totals and shortcuts.
-- Manage: search all resident submissions, open details, and change status to Pending, In Progress, or Resolved.
+- Manage: search submissions, change status, add an optional service fee, and issue a branded PDF receipt. Residents can download active receipts; resolving a request removes its receipt from the resident view.
 - Transparency: publish reports and attach PDF/JPG/PNG files; remove publications.
 - Logout: return to the shared sign-in screen.
 
@@ -39,6 +39,11 @@ Client-side roles select the interface. Deployed Firebase rules must enforce dat
 ```text
 function isBarangayStaff() {
   return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+}
+function validReceiptData() {
+  let receipt = request.resource.data.get('receiptPdfData', '');
+  return receipt is string && receipt.size() <= 700000
+    && (receipt == '' || receipt.matches('data:application/pdf;base64,[A-Za-z0-9+/=]+'));
 }
 match /users/{uid} {
   allow read: if request.auth != null && request.auth.uid == uid;
@@ -56,8 +61,9 @@ match /requests/{id} {
     && request.resource.data.status == 'Pending';
   allow update: if request.auth != null && (
     (isBarangayStaff()
-      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'receiptPdfData', 'receiptFeeAmount', 'receiptFeeDescription', 'receiptIssuedAt'])
       && request.resource.data.status in ['Pending', 'In Progress', 'Resolved'])
+      && validReceiptData()
     || (resource.data.submittedByUid == request.auth.uid
       && resource.data.status == 'Pending'
       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title', 'description']))
@@ -67,6 +73,18 @@ match /requests/{id} {
     && resource.data.status == 'Pending';
 }
 ```
+
+## Receipt PDF storage in Firestore
+
+Receipt PDFs are generated locally and saved as a base64 PDF data URL in each request's `receiptPdfData` field. The value is capped at 700 KB to leave room under Firestore's 1 MiB document limit. Residents download it directly from their request data; no Storage bucket or CORS setup is needed. Resolving the request clears the field.
+
+Deploy the reviewed Firestore rules with:
+
+```powershell
+firebase deploy --only firestore:rules --project antonino-cf44b
+```
+
+These rules must be deployed before staff can save receipt data. Test with separate staff and resident accounts; local rule changes do not affect the live project until deployed. The Transparency Board still uses Storage for its existing attachments.
 
 Keep the Transparency Board rules from TRANSPARENCY_SETUP.md alongside these rules. Enable Storage and apply its rules for attachments. Rules provided here have not been deployed or emulator-tested.
 
