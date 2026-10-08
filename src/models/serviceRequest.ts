@@ -19,4 +19,6 @@ export interface ServiceRequest {
   receiptFeeAmount?: number;
   receiptFeeDescription?: string;
   receiptIssuedAt?: Timestamp | FieldValue | null;
+  collectedAmount?: number;
+  collectedAt?: Timestamp | FieldValue | null;
 }

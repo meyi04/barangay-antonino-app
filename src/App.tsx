@@ -1,6 +1,6 @@
 // src/App.tsx
 import React from 'react';
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import {
   IonApp,
   IonIcon,
@@ -18,7 +18,7 @@ import {
   documentTextOutline,
   receiptOutline,
   shieldCheckmark,
-  logOut
+  newspaperOutline
 } from 'ionicons/icons';
 
 import Tab1 from './pages/Tab1';
@@ -29,8 +29,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import StaffDashboard from './pages/staff/StaffDashboard';
 import ManageRequests from './pages/staff/ManageRequests';
+import Reports from './pages/staff/Reports';
 import { useAuth } from './context/AuthContext';
-import { logoutUser } from './services/authService';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -79,17 +79,14 @@ const ResidentTabs: React.FC = () => {
 };
 
 const StaffTabs: React.FC = () => {
-  const navigate = useNavigate();
-  const handleLogout = async () => {
-    try { await logoutUser(); navigate('/login', { replace: true }); }
-    catch (error) { console.error('Logout failed', error); }
-  };
   return (
     <IonTabs>
       <IonRouterOutlet>
         <Routes>
           <Route path="/staff/dashboard" element={<StaffDashboard />} />
-          <Route path="/staff/requests" element={<ManageRequests />} /><Route path="/staff/transparency" element={<TransparencyBoard />} />
+          <Route path="/staff/requests" element={<ManageRequests />} />
+          <Route path="/staff/transparency" element={<TransparencyBoard />} />
+          <Route path="/staff/reports" element={<Reports />} />
           <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/staff/dashboard" replace />} />
         </Routes>
@@ -104,9 +101,9 @@ const StaffTabs: React.FC = () => {
           <IonLabel>Manage</IonLabel>
         </IonTabButton>
         <IonTabButton tab="transparency" href="/staff/transparency"><IonIcon icon={documentTextOutline} /><IonLabel>Transparency</IonLabel></IonTabButton>
-        <IonTabButton tab="logout" onClick={() => void handleLogout()}>
-          <IonIcon icon={logOut} />
-          <IonLabel>Logout</IonLabel>
+        <IonTabButton tab="reports" href="/staff/reports">
+          <IonIcon icon={newspaperOutline} />
+          <IonLabel>Reports</IonLabel>
         </IonTabButton>
       </IonTabBar>
     </IonTabs>

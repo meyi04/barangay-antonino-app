@@ -24,6 +24,13 @@ service cloud.firestore {
         (receipt == '' || receipt.matches('data:application/pdf;base64,[A-Za-z0-9+/=]+'));
     }
 
+    function validCollectionData() {
+      let amount = request.resource.data.get('collectedAmount', 0);
+      let collectedAt = request.resource.data.get('collectedAt', null);
+      return amount is number && amount >= 0 &&
+        (collectedAt == null || collectedAt is timestamp);
+    }
+
     match /users/{userId} {
       allow create: if signedIn() &&
         request.auth.uid == userId &&
@@ -69,8 +76,9 @@ service cloud.firestore {
         (isAdmin() &&
          validStatus() &&
          validReceiptData() &&
+         validCollectionData() &&
          request.resource.data.diff(resource.data).affectedKeys()
-           .hasOnly(['status', 'receiptPdfData', 'receiptFeeAmount', 'receiptFeeDescription', 'receiptIssuedAt']) &&
+           .hasOnly(['status', 'receiptPdfData', 'receiptFeeAmount', 'receiptFeeDescription', 'receiptIssuedAt', 'collectedAmount', 'collectedAt']) &&
          request.resource.data.submittedByUid == resource.data.submittedByUid)
         ||
         (signedIn() &&

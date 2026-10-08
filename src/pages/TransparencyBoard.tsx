@@ -96,7 +96,7 @@ const TransparencyBoard: React.FC = () => {
   const visible = posts.filter((post) => (filter === 'All' || post.category === filter) && `${post.title} ${post.description}`.toLowerCase().includes(search.toLowerCase()));
   return (
     <IonPage className="services-page board-page">
-      <IonHeader className="ion-no-border"><IonToolbar className="services-toolbar"><div className="services-brand"><BarangayLogo size={36} /><div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div>{!isStaff && <ResidentLogout />}</div></IonToolbar></IonHeader>
+      <IonHeader className="ion-no-border"><IonToolbar className="services-toolbar"><div className="services-brand"><BarangayLogo size={36} /><div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div><ResidentLogout /></div></IonToolbar></IonHeader>
       <IonContent className="ion-padding services-content">
         <div className="services-shell">
           <p className="services-eyebrow">Official Citizen Portal • Transparency</p>

@@ -30,6 +30,7 @@ import type { ServiceRequest } from "../../models/serviceRequest";
 import type * as RequestReceiptService from "../../services/requestReceiptService";
 
 import BarangayLogo from '../../components/BarangayLogo';
+import ResidentLogout from '../../components/ResidentLogout';
 import '../Services.css';
 import '../Tab2.css';
 import './Staff.css';
@@ -49,6 +50,7 @@ const ManageRequests: React.FC = () => {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [statusDraft, setStatusDraft] = useState("Pending");
   const [feeAmount, setFeeAmount] = useState("");
+  const [collectedAmount, setCollectedAmount] = useState("");
   const [feeDescription, setFeeDescription] = useState("");
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
@@ -82,20 +84,27 @@ const ManageRequests: React.FC = () => {
 
   const updateStatus = async () => {
     if (!selectedRequest?.id || saving || !statuses.slice(1).includes(statusDraft)) return;
+    const resolved = statusDraft === "Resolved";
     const amount = feeAmount.trim() === "" ? 0 : Number(feeAmount);
-    if (!Number.isFinite(amount) || amount < 0) {
+    if (!resolved && (!Number.isFinite(amount) || amount < 0)) {
       setToastColor('warning');
       setToastMsg("Enter a valid non-negative fee amount.");
+      setShowToast(true);
+      return;
+    }
+    const collected = collectedAmount.trim() === "" ? 0 : Number(collectedAmount);
+    if (statusDraft === "Resolved" && (!collectedAmount.trim() || !Number.isFinite(collected) || collected < 0)) {
+      setToastColor('warning');
+      setToastMsg("Enter the amount collected, or enter 0 if no payment was received.");
       setShowToast(true);
       return;
     }
 
     setSaving(true);
     let receiptService: typeof RequestReceiptService | null = null;
-
     try {
       receiptService = await import("../../services/requestReceiptService");
-      const resolved = statusDraft === "Resolved";
+      receiptService = await import("../../services/requestReceiptService");
       const receiptPdfData = resolved
         ? ""
         : receiptService.createRequestReceipt(selectedRequest, amount, feeDescription.trim(), new Date());
@@ -106,10 +115,13 @@ const ManageRequests: React.FC = () => {
         receiptFeeAmount: resolved ? 0 : amount,
         receiptFeeDescription: resolved ? "" : feeDescription.trim(),
         receiptIssuedAt: resolved ? null : serverTimestamp(),
+        ...(resolved ? { collectedAmount: collected, collectedAt: serverTimestamp() } : {}),
       });
 
       setToastColor('success');
-      setToastMsg(`Status updated to "${statusDraft}". Receipt ${resolved ? "cleared" : "issued"}.`);
+      setToastMsg(resolved
+        ? `Request resolved. PHP ${collected.toFixed(2)} recorded as collected.`
+        : `Status updated to "${statusDraft}". Receipt issued.`);
       setShowToast(true);
       setShowStatusModal(false);
       setShowModal(false);
@@ -125,6 +137,7 @@ const ManageRequests: React.FC = () => {
     if (!selectedRequest) return;
     setStatusDraft(selectedRequest.status);
     setFeeAmount(selectedRequest.receiptFeeAmount ? String(selectedRequest.receiptFeeAmount) : "");
+    setCollectedAmount(selectedRequest.collectedAmount !== undefined ? String(selectedRequest.collectedAmount) : "");
     setFeeDescription(selectedRequest.receiptFeeDescription || "");
     setShowStatusModal(true);
   };
@@ -144,7 +157,7 @@ const ManageRequests: React.FC = () => {
 
   return (
     <IonPage className="services-page requests-page staff-page">
-      <IonHeader className="ion-no-border"><IonToolbar className="services-toolbar"><div className="services-brand"><BarangayLogo size={36} /><div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div></div></IonToolbar></IonHeader>
+      <IonHeader className="ion-no-border"><IonToolbar className="services-toolbar"><div className="services-brand"><BarangayLogo size={36} /><div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div><ResidentLogout /></div></IonToolbar></IonHeader>
       <IonContent className="ion-padding services-content">
         <div className="services-shell">
           <p className="services-eyebrow">Staff Portal • Manage Requests</p>
@@ -246,7 +259,7 @@ const ManageRequests: React.FC = () => {
         <IonModal isOpen={showStatusModal} onDidDismiss={() => setShowStatusModal(false)}>
           <IonHeader>
             <IonToolbar className="services-toolbar">
-              <IonTitle style={{ fontSize: "15px", fontWeight: 700 }}>Update Progress & Fee</IonTitle>
+              <IonTitle style={{ fontSize: "15px", fontWeight: 700 }}>Update Progress & Collection</IonTitle>
               <IonButton aria-label="Close status editor" slot="end" fill="clear" color="light" onClick={() => setShowStatusModal(false)}>
                 <IonIcon icon={closeOutline} />
               </IonButton>
@@ -260,20 +273,31 @@ const ManageRequests: React.FC = () => {
                   {statuses.slice(1).map((status) => <IonSelectOption key={status} value={status}>{status}</IonSelectOption>)}
                 </IonSelect>
               </IonItem>
-              <IonItem>
-                <IonLabel position="stacked">Service fee (PHP, optional)</IonLabel>
-                <IonInput type="number" min="0" step="0.01" inputMode="decimal" value={feeAmount} onIonInput={(event) => setFeeAmount(event.detail.value ?? "")} placeholder="0.00" />
-              </IonItem>
-              <IonItem>
-                <IonLabel position="stacked">Fee details (optional)</IonLabel>
-                <IonInput value={feeDescription} onIonInput={(event) => setFeeDescription(event.detail.value ?? "")} placeholder="Reason or service covered" />
-              </IonItem>
+              {statusDraft === "Resolved" ? (
+                <IonItem>
+                  <IonLabel position="stacked">Amount actually collected (PHP)</IonLabel>
+                  <IonInput type="number" min="0" step="0.01" inputMode="decimal" value={collectedAmount} onIonInput={(event) => setCollectedAmount(event.detail.value ?? "")} placeholder="0.00" />
+                </IonItem>
+              ) : (
+                <>
+                  <IonItem>
+                    <IonLabel position="stacked">Service fee (PHP, optional)</IonLabel>
+                    <IonInput type="number" min="0" step="0.01" inputMode="decimal" value={feeAmount} onIonInput={(event) => setFeeAmount(event.detail.value ?? "")} placeholder="0.00" />
+                  </IonItem>
+                  <IonItem>
+                    <IonLabel position="stacked">Fee details (optional)</IonLabel>
+                    <IonInput value={feeDescription} onIonInput={(event) => setFeeDescription(event.detail.value ?? "")} placeholder="Reason or service covered" />
+                  </IonItem>
+                </>
+              )}
             </IonList>
             <p style={{ color: "#64748b", fontSize: "12px", lineHeight: 1.5 }}>
-              A branded PDF receipt will be available to the resident after saving. Marking the request Resolved clears the resident's receipt.
+              {statusDraft === "Resolved"
+                ? "Enter the amount received for this request. Enter 0.00 if no payment was collected."
+                : "A branded PDF receipt records the assessed service fee and does not confirm payment."}
             </p>
             <IonButton expand="block" disabled={saving} onClick={() => void updateStatus()}>
-              {saving ? "Saving receipt..." : "Save Status & Receipt"}
+              {saving ? "Saving..." : "Save Status"}
             </IonButton>
           </IonContent>
         </IonModal>

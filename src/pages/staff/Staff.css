@@ -2,9 +2,23 @@
 .staff-stat { padding: 18px; border: 1px solid #e2e8f0; background: #fff; border-radius: 16px; box-shadow: 0 4px 18px rgba(0,0,0,.04); }
 .staff-stat-icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; font-size: 22px; margin-bottom: 12px; }
 .staff-stat strong { display: block; color: #0f2942; font-size: 28px; font-weight: 800; }
+.staff-stat:last-child strong { font-size: 20px; overflow-wrap: anywhere; }
 .staff-stat > span:last-child { font-size: 12px; color: #64748b; }
 .staff-note { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 1px dashed #cbd5e1; border-radius: 14px; background: #f8fafc; color: #64748b; font-size: 12px; line-height: 1.6; }
 .staff-note ion-icon { font-size: 22px; flex-shrink: 0; color: #0d6840; }
 .staff-tab-bar { --background: #fff; --border: 1px solid #e2e8f0; }
 .staff-tab-bar ion-tab-button { --color: #64748b; --color-selected: #0d6840; font-size: 10px; }
+.staff-report-total { display: grid; gap: 6px; padding: 20px; margin: 16px 0; border-radius: 16px; background: linear-gradient(135deg, #0d6840, #0f325e); color: #fff; }
+.staff-report-total span, .staff-report-total small { color: rgba(255,255,255,.85); font-size: 12px; }
+.staff-report-total strong { font-size: 28px; overflow-wrap: anywhere; }
+.staff-report-filters { padding: 14px; margin: 16px 0 24px; border: 1px solid #e2e8f0; border-radius: 16px; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.04); }
+.staff-report-filter-heading { display: flex; align-items: center; gap: 8px; margin: 0 4px 12px; color: #0d6840; font-size: 13px; }
+.staff-report-date-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.staff-report-date-filters label { display: grid; gap: 6px; color: #475569; font-size: 12px; font-weight: 600; }
+.staff-report-date-filters input { width: 100%; min-width: 0; padding: 11px 8px; border: 1px solid #cbd5e1; border-radius: 10px; color: #0f172a; font: inherit; }
+.staff-report-filters ion-searchbar { padding-inline: 0; }
+.staff-report-list { padding: 0; background: transparent; }
+.staff-report-row { --background: #fff; margin-bottom: 9px; border: 1px solid #e2e8f0; border-radius: 14px; }
+.staff-report-row h2 { font-weight: 700; }
+.staff-report-row strong { color: #0d6840; font-size: 13px; }
 @media (min-width: 680px) { .staff-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
