@@ -7,6 +7,7 @@ import { db } from '../../firebase/config';
 import { useAuth } from '../../context/AuthContext';
 import BarangayLogo from '../../components/BarangayLogo';
 import ResidentLogout from '../../components/ResidentLogout';
+import ProfileShortcut from '../../components/ProfileShortcut';
 import type { ServiceRequest } from '../../models/serviceRequest';
 import { sumCollectedAmount } from '../../services/collectionReportService';
 import '../Services.css';
@@ -42,7 +43,7 @@ const StaffDashboard: React.FC = () => {
       <IonHeader className="ion-no-border"><IonToolbar className="services-toolbar"><div className="services-brand"><BarangayLogo size={36} /><div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div><ResidentLogout /></div></IonToolbar></IonHeader>
       <IonContent className="ion-padding services-content"><div className="services-shell">
         <p className="services-eyebrow">Staff Portal • Dashboard</p>
-        <div className="services-hero"><span className="services-pill"><IonIcon icon={shieldCheckmark} /> Barangay Staff</span><h1>Mabuhay, {profile?.fullName || 'Staff'}!</h1><p>Review resident requests, respond to community concerns, and keep the barangay informed.</p></div>
+        <div className="services-hero staff-dashboard-hero"><div><span className="services-pill"><IonIcon icon={shieldCheckmark} /> Barangay Staff</span><h1>Mabuhay, {profile?.fullName || 'Staff'}!</h1><p>Review resident requests, respond to community concerns, and keep the barangay informed.</p></div><ProfileShortcut variant="hero" /></div>
         <h2 className="services-section-title">Request Overview</h2><p className="services-hint">Live updates from all resident submissions.</p>
         {loading ? <div role="status"><IonSpinner /><p>Loading request summary...</p></div> : error ? <p role="alert" className="services-error">{error}</p> : <div className="staff-stats">{cards.map((card) => <div className="staff-stat" key={card.label}><span className="staff-stat-icon" style={{ background: card.bg, color: card.color }}><IonIcon icon={card.icon} /></span><strong>{card.value}</strong><span>{card.label}</span></div>)}</div>}
         <h2 className="services-section-title">Staff Workspace</h2><p className="services-hint">Choose an area to manage.</p>

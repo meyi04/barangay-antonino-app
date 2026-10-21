@@ -44,7 +44,12 @@ service cloud.firestore {
         (signedIn() &&
          request.auth.uid == userId &&
          request.resource.data.diff(resource.data).affectedKeys()
-           .hasOnly(['fullName', 'purok', 'contactNumber']));
+           .hasOnly(['fullName', 'purok', 'contactNumber', 'profilePhoto']) &&
+         request.resource.data.get('profilePhoto', resource.data.get('profilePhoto', '')) is string &&
+         request.resource.data.get('profilePhoto', resource.data.get('profilePhoto', '')).size() <= 600000 &&
+         (request.resource.data.get('profilePhoto', resource.data.get('profilePhoto', '')) == '' ||
+          request.resource.data.get('profilePhoto', resource.data.get('profilePhoto', ''))
+            .matches('data:image/jpeg;base64,[A-Za-z0-9+/=]+')));
 
       allow delete: if isAdmin();
     }

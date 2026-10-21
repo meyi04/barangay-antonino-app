@@ -72,6 +72,16 @@ The app now reports progress, supports canceling file transfer, rejects empty/un
 
 No live Firebase rules were deployed by the coding agent. Unit tests mock Firebase and do not prove live project permissions or bucket configuration.
 
+## Resident and staff profiles
+
+Residents can view and update their own name, contact number, and purok, and upload a JPG, PNG, or WebP profile photo. The app resizes the image, converts it to a JPEG base64 data URL, and saves it in the user's Firestore document. The stored value is limited to 600,000 characters to keep the user document within Firestore's document-size limit. Staff can update their own profile and view resident names, email addresses, contact numbers, puroks, and profile photos from the staff profile directory. Residents cannot browse other profiles. Profile photos do not use Firebase Storage.
+
+Deploy the updated Firestore rules and the `profilePhoto` indexing exemption before using profile edits, the resident directory, or photo uploads:
+
+```powershell
+firebase deploy --only firestore:rules,firestore:indexes --project antonino-cf44b
+```
+
 ## Direct Firestore images (current behavior)
 
 New JPG/PNG uploads are now saved as base64 data URLs in the `imageData` field of the `transparencyPosts` document. These image uploads do not call Firebase Storage. The board displays the stored image directly, and deleting its post also deletes the image data. Existing Storage attachments still open normally; no existing files are migrated automatically.

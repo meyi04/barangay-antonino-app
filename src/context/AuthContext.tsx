@@ -9,6 +9,7 @@ interface AuthContextValue {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
+  refreshProfile: () => Promise<void>;
   enablePushNotifications: () => Promise<void>;
 }
 
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const activeUid = useRef<string | null>(null);
   const stopPushRegistration = useRef<(() => Promise<void>) | null>(null);
+  const userUid = user?.uid;
 
   useEffect(() => {
     const unsubscribe = onAuthChange(async (currentUser) => {
@@ -46,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (!user || profile?.role !== "resident") return;
+    if (!userUid || profile?.role !== "resident") return;
 
     const browserNotificationsAllowed =
       typeof Notification !== "undefined" && Notification.permission === "granted";
@@ -55,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let active = true;
     let stopRegistration: (() => Promise<void>) | undefined;
 
-    void registerResidentPushNotifications(user.uid)
+    void registerResidentPushNotifications(userUid)
       .then((stop) => {
         if (active) {
           stopRegistration = stop;
@@ -75,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         void stopRegistration();
       }
     };
-  }, [profile?.role, user?.uid]);
+  }, [profile?.role, userUid]);
 
   const enablePushNotifications = async () => {
     if (!user || profile?.role !== "resident") {
@@ -94,8 +96,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     stopPushRegistration.current = stop;
   };
 
+  const refreshProfile = async () => {
+    if (!user) return;
+    setProfile(await getUserProfile(user.uid));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, enablePushNotifications }}>
+    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, enablePushNotifications }}>
       {children}
     </AuthContext.Provider>
   );

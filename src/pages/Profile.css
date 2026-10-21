@@ -1,0 +1,43 @@
+.profile-shell { max-width: 720px; margin: 0 auto; padding-bottom: 32px; }
+.profile-shell-staff { max-width: 900px; }
+.profile-back { margin: 0 0 8px; --color: #0d6840; font-size: 12px; text-transform: none; }
+.profile-heading { margin-bottom: 18px; }
+.profile-heading h1 { margin: 10px 0 6px; color: #0f2942; font-size: 24px; font-weight: 800; }
+.profile-heading p { margin: 0; color: #64748b; font-size: 13px; }
+.profile-card, .resident-directory { padding: 16px; border: 1px solid #e2e8f0; border-radius: 16px; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,.05); }
+.profile-card-top { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
+.profile-photo { display: flex; width: 76px; height: 76px; flex: 0 0 76px; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; background: #dcfce7; color: #0d6840; }
+.profile-photo ion-icon { font-size: 54px; }
+.profile-photo img { width: 100%; height: 100%; object-fit: cover; }
+.profile-photo-small { width: 42px; height: 42px; flex-basis: 42px; }
+.profile-photo-small ion-icon { font-size: 34px; }
+.profile-card-identity { display: grid; min-width: 0; flex: 1; gap: 5px; }
+.profile-card-identity strong { overflow-wrap: anywhere; color: #0f2942; font-size: 15px; }
+.profile-card-identity span { color: #64748b; font-size: 12px; }
+.profile-file-input { display: none; }
+.profile-photo-button { flex: 0 0 auto; --border-radius: 10px; font-size: 11px; text-transform: none; }
+.profile-fields { display: grid; gap: 2px; padding-top: 8px; }
+.profile-fields ion-item { --background: #fff; --border-color: #e2e8f0; --padding-start: 8px; --padding-end: 8px; }
+.profile-fields ion-label { margin-bottom: 6px; color: #475569; font-size: 12px; font-weight: 600; }
+.profile-fields ion-input, .profile-fields ion-select { min-height: 40px; font-size: 14px; }
+.profile-save { margin-top: 18px; --border-radius: 11px; --box-shadow: none; font-size: 13px; font-weight: 700; text-transform: none; }
+.profile-error { margin: 14px 0 0; }
+.resident-directory { margin-top: 18px; }
+.resident-directory-heading h2 { margin: 0 0 5px; color: #0f2942; font-size: 16px; font-weight: 800; }
+.resident-directory-heading p { margin: 0 0 12px; color: #64748b; font-size: 12px; line-height: 1.5; }
+.resident-directory-list { display: grid; max-height: 320px; overflow-y: auto; }
+.resident-directory-row { display: flex; align-items: center; gap: 10px; padding: 10px 6px; border: 0; border-top: 1px solid #f1f5f9; background: #fff; color: #0f172a; text-align: left; cursor: pointer; }
+.resident-directory-row.is-selected { background: #f0fdf4; }
+.resident-directory-row > span { display: grid; gap: 4px; }
+.resident-directory-row strong { font-size: 12px; }
+.resident-directory-row small { color: #64748b; font-size: 11px; }
+.profile-loading { display: flex; align-items: center; gap: 10px; padding: 12px 0; color: #64748b; font-size: 12px; }
+.profile-empty { color: #64748b; font-size: 12px; }
+.resident-details { display: flex; align-items: flex-start; gap: 14px; margin-top: 14px; padding: 14px; border-radius: 12px; background: #f8fafc; }
+.resident-details h3 { margin: 0 0 8px; color: #0f2942; font-size: 14px; }
+.resident-details p { margin: 5px 0; overflow-wrap: anywhere; color: #475569; font-size: 12px; }
+
+@media (max-width: 440px) {
+  .profile-card-top { flex-wrap: wrap; }
+  .profile-photo-button { margin-left: auto; }
+}

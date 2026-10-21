@@ -31,6 +31,7 @@ import StaffDashboard from './pages/staff/StaffDashboard';
 import ManageRequests from './pages/staff/ManageRequests';
 import Reports from './pages/staff/Reports';
 import Chat from './pages/Chat';
+import Profile from './pages/Profile';
 import FloatingChatButton from './components/FloatingChatButton';
 import { useAuth } from './context/AuthContext';
 
@@ -58,6 +59,7 @@ const ResidentTabs: React.FC = () => {
           <Route path="/tab2" element={<Services />} />
           <Route path="/tab3" element={<Tab2 />} /><Route path="/transparency" element={<TransparencyBoard />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/" element={<Navigate to="/tab1" replace />} />
           <Route path="*" element={<Navigate to="/tab1" replace />} />
         </Routes>
@@ -92,6 +94,7 @@ const StaffTabs: React.FC = () => {
           <Route path="/staff/transparency" element={<TransparencyBoard />} />
           <Route path="/staff/reports" element={<Reports />} />
           <Route path="/staff/chat" element={<Chat />} />
+          <Route path="/staff/profile" element={<Profile />} />
           <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/staff/dashboard" replace />} />
         </Routes>

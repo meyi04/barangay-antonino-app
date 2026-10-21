@@ -18,6 +18,7 @@ import { db } from "../firebase/config";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import BarangayLogo from "../components/BarangayLogo";
+import ProfileShortcut from "../components/ProfileShortcut";
 import './Services.css';
 
 type Announcement = {
@@ -127,9 +128,7 @@ const Tab1: React.FC = () => {
                 <IonIcon icon={locationOutline} />{profile?.purok || "Barangay Antonino"} • Philippines
               </p>
             </div>
-            <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", fontWeight: 800, border: "2px solid rgba(255,255,255,0.4)", color: "#fff" }}>
-              {(profile?.fullName || "R").charAt(0).toUpperCase()}
-            </div>
+            <ProfileShortcut variant="hero" />
           </div>
           <div style={{ marginTop: "18px", paddingTop: "14px", borderTop: "1px solid rgba(255,255,255,0.2)", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", textAlign: "center" }}>
             <div><div style={{ fontSize: "18px", fontWeight: 800, color: "#fef08a" }}>{stats.pending}</div><div style={{ fontSize: "11px", color: "rgba(255,255,255,0.85)" }}>Pending</div></div>
