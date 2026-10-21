@@ -30,6 +30,8 @@ import Register from './pages/Register';
 import StaffDashboard from './pages/staff/StaffDashboard';
 import ManageRequests from './pages/staff/ManageRequests';
 import Reports from './pages/staff/Reports';
+import Chat from './pages/Chat';
+import FloatingChatButton from './components/FloatingChatButton';
 import { useAuth } from './context/AuthContext';
 
 import '@ionic/react/css/core.css';
@@ -55,10 +57,12 @@ const ResidentTabs: React.FC = () => {
           <Route path="/tab1" element={<Tab1 />} />
           <Route path="/tab2" element={<Services />} />
           <Route path="/tab3" element={<Tab2 />} /><Route path="/transparency" element={<TransparencyBoard />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="/" element={<Navigate to="/tab1" replace />} />
           <Route path="*" element={<Navigate to="/tab1" replace />} />
         </Routes>
       </IonRouterOutlet>
+      <FloatingChatButton />
       <IonTabBar slot="bottom">
         <IonTabButton tab="tab1" href="/tab1">
           <IonIcon icon={homeOutline} />
@@ -87,10 +91,12 @@ const StaffTabs: React.FC = () => {
           <Route path="/staff/requests" element={<ManageRequests />} />
           <Route path="/staff/transparency" element={<TransparencyBoard />} />
           <Route path="/staff/reports" element={<Reports />} />
+          <Route path="/staff/chat" element={<Chat />} />
           <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
           <Route path="*" element={<Navigate to="/staff/dashboard" replace />} />
         </Routes>
       </IonRouterOutlet>
+      <FloatingChatButton />
       <IonTabBar className="staff-tab-bar" slot="bottom">
         <IonTabButton tab="dashboard" href="/staff/dashboard">
           <IonIcon icon={shieldCheckmark} />

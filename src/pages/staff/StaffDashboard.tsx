@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { IonContent, IonHeader, IonIcon, IonPage, IonSpinner, IonToolbar } from '@ionic/react';
-import { checkmarkDoneOutline, constructOutline, documentTextOutline, timeOutline, shieldCheckmark, newspaperOutline, cashOutline } from 'ionicons/icons';
+import { checkmarkDoneOutline, constructOutline, documentTextOutline, timeOutline, shieldCheckmark, newspaperOutline, cashOutline, chatbubbleEllipsesOutline } from 'ionicons/icons';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../firebase/config';
@@ -50,6 +50,7 @@ const StaffDashboard: React.FC = () => {
           <button className="services-choice" type="button" onClick={() => navigate('/staff/requests')}><span className="services-choice-icon"><IonIcon icon={documentTextOutline} /></span><strong>Manage Requests</strong><small>Review certificates and complaints. Update their progress.</small></button>
           <button className="services-choice" type="button" onClick={() => navigate('/staff/transparency')}><span className="services-choice-icon complaint"><IonIcon icon={newspaperOutline} /></span><strong>Transparency Board</strong><small>Publish budgets, project updates, reports, and attachments.</small></button>
           <button className="services-choice" type="button" onClick={() => navigate('/staff/reports')}><span className="services-choice-icon"><IonIcon icon={cashOutline} /></span><strong>Collections Reports</strong><small>Filter collected request fees and download a financial report.</small></button>
+          <button className="services-choice" type="button" onClick={() => navigate('/staff/chat')}><span className="services-choice-icon"><IonIcon icon={chatbubbleEllipsesOutline} /></span><strong>Resident Chat</strong><small>Read and reply to messages from residents in real time.</small></button>
         </div>
         <div className="staff-note"><IonIcon icon={shieldCheckmark} /><p>Request status updates and published board posts are visible to residents.</p></div>
       </div></IonContent>
