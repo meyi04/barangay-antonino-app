@@ -18,7 +18,8 @@ import {
   documentTextOutline,
   receiptOutline,
   shieldCheckmark,
-  newspaperOutline
+  newspaperOutline,
+  peopleOutline,
 } from 'ionicons/icons';
 
 import Tab1 from './pages/Tab1';
@@ -30,6 +31,7 @@ import Register from './pages/Register';
 import StaffDashboard from './pages/staff/StaffDashboard';
 import ManageRequests from './pages/staff/ManageRequests';
 import Reports from './pages/staff/Reports';
+import AdminUsers from './pages/admin/AdminUsers';
 import Chat from './pages/Chat';
 import Profile from './pages/Profile';
 import FloatingChatButton from './components/FloatingChatButton';
@@ -84,33 +86,38 @@ const ResidentTabs: React.FC = () => {
   );
 };
 
-const StaffTabs: React.FC = () => {
+const AdminTabs: React.FC = () => {
   return (
     <IonTabs>
       <IonRouterOutlet>
         <Routes>
-          <Route path="/staff/dashboard" element={<StaffDashboard />} />
-          <Route path="/staff/requests" element={<ManageRequests />} />
-          <Route path="/staff/transparency" element={<TransparencyBoard />} />
-          <Route path="/staff/reports" element={<Reports />} />
-          <Route path="/staff/chat" element={<Chat />} />
-          <Route path="/staff/profile" element={<Profile />} />
-          <Route path="/staff" element={<Navigate to="/staff/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/staff/dashboard" replace />} />
+          <Route path="/admin/dashboard" element={<StaffDashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/requests" element={<ManageRequests />} />
+          <Route path="/admin/transparency" element={<TransparencyBoard />} />
+          <Route path="/admin/reports" element={<Reports />} />
+          <Route path="/admin/chat" element={<Chat />} />
+          <Route path="/admin/profile" element={<Profile />} />
+          <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
         </Routes>
       </IonRouterOutlet>
       <FloatingChatButton />
       <IonTabBar className="staff-tab-bar" slot="bottom">
-        <IonTabButton tab="dashboard" href="/staff/dashboard">
+        <IonTabButton tab="dashboard" href="/admin/dashboard">
           <IonIcon icon={shieldCheckmark} />
-          <IonLabel>Dashboard</IonLabel>
+          <IonLabel>Home</IonLabel>
         </IonTabButton>
-        <IonTabButton tab="requests" href="/staff/requests">
+        <IonTabButton tab="users" href="/admin/users">
+          <IonIcon icon={peopleOutline} />
+          <IonLabel>Users</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="requests" href="/admin/requests">
           <IonIcon icon={documentTextOutline} />
-          <IonLabel>Manage</IonLabel>
+          <IonLabel>Requests</IonLabel>
         </IonTabButton>
-        <IonTabButton tab="transparency" href="/staff/transparency"><IonIcon icon={documentTextOutline} /><IonLabel>Transparency</IonLabel></IonTabButton>
-        <IonTabButton tab="reports" href="/staff/reports">
+        <IonTabButton tab="transparency" href="/admin/transparency"><IonIcon icon={documentTextOutline} /><IonLabel>Board</IonLabel></IonTabButton>
+        <IonTabButton tab="reports" href="/admin/reports">
           <IonIcon icon={newspaperOutline} />
           <IonLabel>Reports</IonLabel>
         </IonTabButton>
@@ -142,7 +149,7 @@ const App: React.FC = () => {
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           ) : profile?.role === 'admin' ? (
-            <Routes><Route path="/*" element={<StaffTabs />} /></Routes>
+            <Routes><Route path="/*" element={<AdminTabs />} /></Routes>
           ) : (
             <Routes><Route path="/*" element={<ResidentTabs />} /></Routes>
           )}

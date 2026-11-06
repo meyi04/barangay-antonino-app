@@ -92,7 +92,7 @@ const Chat: React.FC = () => {
         (snapshotError) => {
           console.error('Unable to load chat conversations', snapshotError);
           setLoadingConversations(false);
-          setError('Unable to load resident conversations. Check your connection and staff permissions.');
+          setError('Unable to load resident conversations. Check your connection and administrator permissions.');
         }
       );
     }
@@ -194,7 +194,7 @@ const Chat: React.FC = () => {
     const batch = writeBatch(db);
     batch.set(messageRef, {
       senderUid: user.uid,
-      senderName: profile.fullName || (isStaff ? 'Barangay Staff' : 'Resident'),
+      senderName: profile.fullName || (isStaff ? 'Barangay Administrator' : 'Resident'),
       text,
       createdAt: serverTimestamp(),
     });
@@ -215,7 +215,7 @@ const Chat: React.FC = () => {
     }
   };
 
-  const title = isStaff ? 'Resident messages' : 'Chat with barangay staff';
+  const title = isStaff ? 'Resident messages' : 'Chat with barangay administrators';
 
   return (
     <IonPage className="chat-page">
@@ -235,7 +235,7 @@ const Chat: React.FC = () => {
             <h1>{title}</h1>
             <p>{isStaff
               ? 'Reply to residents and follow conversations in real time.'
-              : 'Send a message to the barangay staff. Replies will appear here.'}</p>
+              : 'Send a message to the barangay administrators. Replies will appear here.'}</p>
           </div>
 
           {error && <p className="services-error chat-error" role="alert">{error}</p>}

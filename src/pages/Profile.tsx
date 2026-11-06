@@ -81,7 +81,7 @@ const Profile: React.FC = () => {
       })
       .catch((loadError: unknown) => {
         console.error('Unable to load resident profiles', loadError);
-        if (active) setError('Unable to load resident profiles. Check your connection and staff permissions.');
+        if (active) setError('Unable to load resident profiles. Check your connection and administrator permissions.');
       })
       .finally(() => {
         if (active) setLoadingResidents(false);
@@ -142,7 +142,7 @@ const Profile: React.FC = () => {
     }
   };
 
-  const backRoute = isStaff ? '/staff/dashboard' : '/tab1';
+  const backRoute = isStaff ? '/admin/dashboard' : '/tab1';
 
   return (
     <IonPage className="services-page">
@@ -161,7 +161,7 @@ const Profile: React.FC = () => {
             <IonIcon icon={arrowBackOutline} slot="start" /> Back
           </IonButton>
           <div className="profile-heading">
-            <span className="services-pill"><IonIcon icon={personCircleOutline} /> {isStaff ? 'Staff profile' : 'Resident profile'}</span>
+            <span className="services-pill"><IonIcon icon={personCircleOutline} /> {isStaff ? 'Admin profile' : 'Resident profile'}</span>
             <h1>My profile</h1>
             <p>Manage your photo and contact information.</p>
           </div>
@@ -171,7 +171,7 @@ const Profile: React.FC = () => {
               <ProfilePhoto profilePhoto={profile?.profilePhoto} name={profile?.fullName || 'Profile'} />
               <div className="profile-card-identity">
                 <strong>{profile?.fullName || 'Your profile'}</strong>
-                <span>{isStaff ? 'Barangay Staff' : 'Resident'}</span>
+                <span>{isStaff ? 'Barangay Administrator' : 'Resident'}</span>
               </div>
               <input
                 ref={photoInput}
@@ -229,7 +229,7 @@ const Profile: React.FC = () => {
             <section className="resident-directory" aria-label="Resident profiles">
               <div className="resident-directory-heading">
                 <h2>Resident profiles</h2>
-                <p>Resident contact details are visible to authorized staff only.</p>
+                <p>Resident contact details are visible to authorized administrators only.</p>
               </div>
               {loadingResidents ? (
                 <div className="profile-loading"><IonSpinner /><span>Loading resident profiles...</span></div>

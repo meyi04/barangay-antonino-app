@@ -56,7 +56,7 @@ const TransparencyBoard: React.FC = () => {
     if (file) { const validation = validateAttachment(file); if (validation) { setFileError(validation); return; } }
     working.current = true; setBusy(true); setProgress(0);
     try {
-      await publishBoardPost({ title: title.trim(), category, description: description.trim(), publishedBy: profile?.fullName || 'Barangay Staff', publishedByUid: user.uid }, file, setProgress, (task) => { uploadTask.current = task; setUploading(!!task); });
+      await publishBoardPost({ title: title.trim(), category, description: description.trim(), publishedBy: profile?.fullName || 'Barangay Administrator', publishedByUid: user.uid }, file, setProgress, (task) => { uploadTask.current = task; setUploading(!!task); });
       setTitle(''); setDescription(''); setFile(null);
       if (fileInput.current) fileInput.current.value = '';
       setMessage('Post published. Residents can now view it on the Transparency Board.');

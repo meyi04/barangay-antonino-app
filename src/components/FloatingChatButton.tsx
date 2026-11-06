@@ -10,7 +10,7 @@ const FloatingChatButton: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (!user || !profile || location.pathname === '/chat' || location.pathname === '/staff/chat') {
+  if (!user || !profile || location.pathname === '/chat' || location.pathname === '/admin/chat') {
     return null;
   }
 
@@ -20,7 +20,7 @@ const FloatingChatButton: React.FC = () => {
     <IonButton
       className="floating-chat-button"
       aria-label={isStaff ? 'Open resident chat' : 'Chat with barangay staff'}
-      onClick={() => navigate(isStaff ? '/staff/chat' : '/chat')}
+      onClick={() => navigate(isStaff ? '/admin/chat' : '/chat')}
     >
       <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
       Chat

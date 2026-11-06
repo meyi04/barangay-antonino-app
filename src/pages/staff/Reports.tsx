@@ -50,7 +50,7 @@ const Reports: React.FC = () => {
     setLoadError('');
   }, () => {
     setLoading(false);
-    setLoadError('Unable to load collection records. Check your connection and staff permissions.');
+    setLoadError('Unable to load collection records. Check your connection and administrator permissions.');
   }), []);
 
   const categories = useMemo(
@@ -91,7 +91,7 @@ const Reports: React.FC = () => {
       </IonHeader>
       <IonContent className="ion-padding services-content">
         <div className="services-shell">
-          <p className="services-eyebrow">Staff Portal • Reports</p>
+          <p className="services-eyebrow">Admin Portal • Reports</p>
           <div className="services-hero">
             <span className="services-pill"><IonIcon icon={downloadOutline} /> Financial Report</span>
             <h1>Collections Report</h1>

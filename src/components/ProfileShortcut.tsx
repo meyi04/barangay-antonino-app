@@ -10,7 +10,7 @@ interface ProfileShortcutProps {
 const ProfileShortcut: React.FC<ProfileShortcutProps> = ({ variant = 'header' }) => {
   const { profile } = useAuth();
   const navigate = useNavigate();
-  const route = profile?.role === 'admin' ? '/staff/profile' : '/profile';
+  const route = profile?.role === 'admin' ? '/admin/profile' : '/profile';
 
   return (
     <button

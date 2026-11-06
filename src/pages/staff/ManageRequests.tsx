@@ -61,7 +61,7 @@ const ManageRequests: React.FC = () => {
       setRequests(data);
       setLoading(false);
       setLoadError('');
-    }, () => { setLoading(false); setLoadError('Unable to load requests. Check your connection and staff permissions.'); });
+    }, () => { setLoading(false); setLoadError('Unable to load requests. Check your connection and administrator permissions.'); });
 
     return () => unsub();
   }, []);
@@ -160,7 +160,7 @@ const ManageRequests: React.FC = () => {
       <IonHeader className="ion-no-border"><IonToolbar className="services-toolbar"><div className="services-brand"><BarangayLogo size={36} /><div><small>Republika ng Pilipinas</small><strong>Barangay Antonino</strong></div><ResidentLogout /></div></IonToolbar></IonHeader>
       <IonContent className="ion-padding services-content">
         <div className="services-shell">
-          <p className="services-eyebrow">Staff Portal • Manage Requests</p>
+          <p className="services-eyebrow">Admin Portal • Manage Requests</p>
           <div className="services-hero"><span className="services-pill"><IonIcon icon={documentTextOutline} /> Resident Services</span><h1>Manage Requests</h1><p>Review certificate applications and community complaints. Keep residents informed by updating each request's status.</p></div>
           <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "16px", padding: "8px 12px", marginBottom: "12px", boxShadow: "0 4px 18px rgba(0,0,0,0.04)" }}>
             <IonSearchbar

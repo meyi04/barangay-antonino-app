@@ -40,7 +40,18 @@ service cloud.firestore {
       allow read: if signedIn() &&
         (request.auth.uid == userId || isAdmin());
 
-      allow update: if isAdmin() ||
+      allow update: if
+        (isAdmin() &&
+         request.resource.data.diff(resource.data).affectedKeys()
+           .hasOnly(['fullName', 'purok', 'contactNumber']) &&
+         request.resource.data.get('fullName', resource.data.get('fullName', '')) is string &&
+         request.resource.data.get('fullName', resource.data.get('fullName', '')).size() > 0 &&
+         request.resource.data.get('fullName', resource.data.get('fullName', '')).size() <= 200 &&
+         request.resource.data.get('purok', resource.data.get('purok', '')) is string &&
+         request.resource.data.get('purok', resource.data.get('purok', '')).size() <= 100 &&
+         request.resource.data.get('contactNumber', resource.data.get('contactNumber', '')) is string &&
+         request.resource.data.get('contactNumber', resource.data.get('contactNumber', '')).size() <= 30)
+        ||
         (signedIn() &&
          request.auth.uid == userId &&
          request.resource.data.diff(resource.data).affectedKeys()
@@ -51,7 +62,7 @@ service cloud.firestore {
           request.resource.data.get('profilePhoto', resource.data.get('profilePhoto', ''))
             .matches('data:image/jpeg;base64,[A-Za-z0-9+/=]+')));
 
-      allow delete: if isAdmin();
+      allow delete: if isAdmin() && resource.data.role == 'resident';
     }
 
     match /users/{userId}/fcmTokens/{tokenId} {

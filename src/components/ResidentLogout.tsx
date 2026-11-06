@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { IonButton, IonIcon, IonToast } from '@ionic/react';
+import { IonAlert, IonButton, IonIcon, IonToast } from '@ionic/react';
 import { logOutOutline } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { logoutUser } from '../services/authService';
@@ -9,6 +9,7 @@ const ResidentLogout: React.FC = () => {
   const pending = useRef(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const logout = async () => {
     if (pending.current) return;
     pending.current = true;
@@ -26,10 +27,20 @@ const ResidentLogout: React.FC = () => {
   };
   return (
     <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
-      <IonButton aria-label="Log out" fill="clear" color="light" size="small" disabled={busy} onClick={() => void logout()}
+      <IonButton aria-label="Log out" fill="clear" color="light" size="small" disabled={busy} onClick={() => setConfirmLogout(true)}
         style={{ background: 'rgba(255,255,255,0.18)', borderRadius: '20px', fontSize: '12px', fontWeight: 600, textTransform: 'none', margin: 0 }}>
         <IonIcon icon={logOutOutline} slot="icon-only" />
       </IonButton>
+      <IonAlert
+        isOpen={confirmLogout}
+        header="Log out?"
+        message="Are you sure you want to log out?"
+        onDidDismiss={() => setConfirmLogout(false)}
+        buttons={[
+          { text: 'Cancel', role: 'cancel' },
+          { text: 'Log out', role: 'destructive', handler: () => void logout() },
+        ]}
+      />
       <IonToast isOpen={error} onDidDismiss={() => setError(false)} message="Unable to log out. Please try again." color="danger" duration={3000} position="top" />
     </div>
   );
