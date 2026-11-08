@@ -3,6 +3,7 @@ import { IonAlert, IonButton, IonIcon, IonToast } from '@ionic/react';
 import { logOutOutline } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { logoutUser } from '../services/authService';
+import NotificationBell from './NotificationBell';
 
 const ResidentLogout: React.FC = () => {
   const navigate = useNavigate();
@@ -26,7 +27,8 @@ const ResidentLogout: React.FC = () => {
     }
   };
   return (
-    <div style={{ marginLeft: 'auto', flexShrink: 0 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto', flexShrink: 0 }}>
+      <NotificationBell />
       <IonButton aria-label="Log out" fill="clear" color="light" size="small" disabled={busy} onClick={() => setConfirmLogout(true)}
         style={{ background: 'rgba(255,255,255,0.18)', borderRadius: '20px', fontSize: '12px', fontWeight: 600, textTransform: 'none', margin: 0 }}>
         <IonIcon icon={logOutOutline} slot="icon-only" />

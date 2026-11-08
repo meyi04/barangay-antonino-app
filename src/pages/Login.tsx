@@ -5,7 +5,7 @@ import {
   IonButton, IonCard, IonCardContent, IonToast, IonLoading, IonIcon,
 } from "@ionic/react";
 import { useNavigate } from "react-router-dom";
-import { mailOutline, lockClosedOutline, logInOutline, personAddOutline, shieldCheckmarkOutline } from "ionicons/icons";
+import { eyeOffOutline, eyeOutline, mailOutline, lockClosedOutline, logInOutline, personAddOutline, shieldCheckmarkOutline } from "ionicons/icons";
 import { loginUser } from "../services/authService";
 import BarangayLogo from "../components/BarangayLogo";
 
@@ -13,6 +13,7 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [showToast, setShowToast] = useState(false);
@@ -87,8 +88,17 @@ const Login: React.FC = () => {
                 <IonItem style={{ "--background": "transparent", "--border-width": "0", "--padding-start": "14px" }}>
                   <IonIcon icon={lockClosedOutline} slot="start" style={{ color: "#0d6840", fontSize: "18px" }} />
                   <IonLabel position="stacked" style={{ fontWeight: 600 }}>Password</IonLabel>
-                  <IonInput type="password" value={password} placeholder="••••••••"
+                  <IonInput type={showPassword ? "text" : "password"} value={password} placeholder="••••••••"
                     onIonChange={(e) => setPassword(e.detail.value!)} />
+                  <IonButton
+                    type="button"
+                    fill="clear"
+                    slot="end"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowPassword((visible) => !visible)}
+                  >
+                    <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} />
+                  </IonButton>
                 </IonItem>
               </div>
 

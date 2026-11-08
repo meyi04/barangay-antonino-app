@@ -6,7 +6,7 @@ import {
   IonToast, IonLoading, IonIcon,
 } from "@ionic/react";
 import { useNavigate } from "react-router-dom";
-import { personOutline, mailOutline, lockClosedOutline, callOutline, locationOutline, personAddOutline, arrowBackOutline, shieldCheckmarkOutline } from "ionicons/icons";
+import { personOutline, mailOutline, lockClosedOutline, callOutline, locationOutline, personAddOutline, arrowBackOutline, shieldCheckmarkOutline, eyeOutline, eyeOffOutline } from "ionicons/icons";
 import { registerUser } from "../services/authService";
 import BarangayLogo from "../components/BarangayLogo";
 
@@ -15,6 +15,7 @@ const puroks = ["Purok 1", "Purok 2", "Purok 3", "Purok 4", "Purok 5", "Purok 6"
 const Register: React.FC = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({ fullName: "", email: "", password: "", contactNumber: "", purok: "Purok 1" });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [toastColor, setToastColor] = useState("success");
@@ -105,8 +106,17 @@ const Register: React.FC = () => {
                 <IonItem style={itemStyle}>
                   <IonIcon icon={lockClosedOutline} slot="start" style={{ color: "#0d6840", fontSize: "18px" }} />
                   <IonLabel position="stacked" style={{ fontWeight: 600 }}>Password (Hindi bababa sa 6 na titik) *</IonLabel>
-                  <IonInput type="password" value={form.password} placeholder="••••••••"
+                  <IonInput type={showPassword ? "text" : "password"} value={form.password} placeholder="••••••••"
                     onIonChange={(e) => setForm({ ...form, password: e.detail.value! })} />
+                  <IonButton
+                    type="button"
+                    fill="clear"
+                    slot="end"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowPassword((visible) => !visible)}
+                  >
+                    <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} />
+                  </IonButton>
                 </IonItem>
               </div>
 
